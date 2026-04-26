@@ -74,7 +74,7 @@ h1.game-title{font-family:'Black Ops One',cursive;font-size:clamp(1.8rem,6vw,3.5
 .quiz-acronym{font-family:'Black Ops One',cursive;font-size:clamp(2rem,8vw,4rem);color:var(--accent);text-shadow:0 0 30px rgba(0,245,212,.4);margin-bottom:6px;}
 .quiz-acronym.concept-display{font-family:'Orbitron',monospace;font-size:clamp(1rem,4vw,2rem);line-height:1.2;overflow-wrap:anywhere;}
 .quiz-direction{font-size:.85rem;color:var(--muted);font-style:italic;}
-.quiz-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:680px;}
+.quiz-options{display:grid;grid-template-columns:1fr;gap:10px;width:100%;max-width:680px;}
 .quiz-opt{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:all .2s;text-align:left;font-family:'Exo 2',sans-serif;font-size:.85rem;color:var(--text);line-height:1.4;}
 .quiz-opt:hover:not(:disabled){border-color:var(--accent);background:rgba(0,245,212,.05);}
 .quiz-opt.correct-ans{border-color:var(--green)!important;background:rgba(34,197,94,.1)!important;color:var(--green);}
@@ -115,6 +115,13 @@ h1.game-title{font-family:'Black Ops One',cursive;font-size:clamp(1.8rem,6vw,3.5
 @keyframes flashGreen{0%{box-shadow:0 0 0 rgba(34,197,94,0);}50%{box-shadow:0 0 40px rgba(34,197,94,.4);}100%{box-shadow:0 0 0 rgba(34,197,94,0);}}
 @keyframes flashRed{0%{box-shadow:0 0 0 rgba(239,68,68,0);}50%{box-shadow:0 0 40px rgba(239,68,68,.4);}100%{box-shadow:0 0 0 rgba(239,68,68,0);}}
 .flash-green{animation:flashGreen .5s ease;}.flash-red{animation:flashRed .5s ease;}
+/* Exam-style quiz */
+.quiz-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.quiz-domain-badge{font-family:'Share Tech Mono',monospace;font-size:.58rem;padding:3px 9px;border-radius:8px;letter-spacing:1px;}
+.quiz-qnum{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--muted);}
+.quiz-stem{font-size:.93rem;color:var(--text);line-height:1.68;text-align:left;}
+.quiz-opt{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px 14px;cursor:pointer;transition:all .2s;text-align:left;font-family:'Exo 2',sans-serif;font-size:.85rem;color:var(--text);line-height:1.4;display:flex;gap:10px;align-items:flex-start;}
+.quiz-opt-letter{font-family:'Orbitron',monospace;font-weight:700;color:var(--accent);font-size:.78rem;min-width:18px;flex-shrink:0;padding-top:2px;}
 
 @media (hover:none){
   .mode-card:hover,.ans-btn.got-it:hover,.ans-btn.missed:hover,.nav-btn:hover,.next-quiz-btn:hover,.action-btn.primary:hover,.action-btn.secondary:hover{transform:none;box-shadow:none;}
@@ -165,9 +172,7 @@ h1.game-title{font-family:'Black Ops One',cursive;font-size:clamp(1.8rem,6vw,3.5
   .nav-btns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));}
   .nav-btn{padding:9px 8px;font-size:.72rem;white-space:nowrap;}
   .quiz-question-box{max-width:100%;padding:16px;border-radius:14px;}
-  .quiz-q-label{font-size:.56rem;letter-spacing:1.2px;line-height:1.4;}
-  .quiz-acronym{font-size:clamp(1.8rem,14vw,3.4rem);overflow-wrap:anywhere;}
-  .quiz-acronym.concept-display{font-size:clamp(1rem,7vw,1.65rem);}
+  .quiz-stem{font-size:.85rem;line-height:1.55;}
   .quiz-options{grid-template-columns:1fr;max-width:100%;gap:8px;}
   .quiz-opt{padding:12px;font-size:.8rem;border-radius:10px;}
   .quiz-feedback{max-width:100%;padding:12px 14px;font-size:.82rem;}
@@ -250,7 +255,7 @@ h1.game-title{font-family:'Black Ops One',cursive;font-size:clamp(1.8rem,6vw,3.5
 </div>
 <div class="screen" id="quizScreen">
   <div class="top-bar"><button class="nav-btn" onclick="goHome()">← HOME</button><div class="progress-wrap"><div class="progress-fill" id="quizProgressFill" style="width:0%"></div></div><div class="progress-text" id="quizProgressText">1/20</div><div class="score-display"><div class="score-chip correct" id="quizCorrectChip">✓ 0</div><div class="score-chip wrong" id="quizWrongChip">✗ 0</div></div></div>
-  <div class="quiz-question-box"><div class="quiz-q-label" id="quizQuestionLabel">WHAT DOES THIS ACRONYM STAND FOR?</div><div class="quiz-acronym" id="quizAcronym">AAA</div><div class="quiz-direction" id="quizDirection">Select the correct full name</div></div>
+  <div class="quiz-question-box"><div class="quiz-meta"><span class="quiz-domain-badge" id="quizDomainBadge">SECURITY+</span><span class="quiz-qnum" id="quizQNum">Q 1 OF 20</span></div><div class="quiz-stem" id="quizStem">Loading question...</div></div>
   <div class="quiz-options" id="quizOptions"></div>
   <div class="quiz-feedback" id="quizFeedback"><div class="feedback-title" id="feedbackTitle"></div><div id="feedbackBody"></div><div class="feedback-trick" id="feedbackTrick"></div></div>
   <button class="next-quiz-btn" id="nextQuizBtn" onclick="nextQuizQuestion()" style="display:none">NEXT QUESTION →</button>
@@ -607,7 +612,7 @@ const ACRONYM_CATEGORY_OPTIONS=[
 ];
 
 let deck=[],currentIdx=0,correctCount=0,wrongCount=0,missedCards=[],isFlipped=false,sessionMode='flashcard';
-let quizQ=[],quizIdx=0,quizCorrect=0,quizWrong=0,quizMissed=[];
+let quizQ=[],quizIdx=0,quizCorrect=0,quizWrong=0,quizMissed=[],currentQuestion=null;
 let mastered=JSON.parse(localStorage.getItem('sec_mastered')||'[]');
 let bestScore=JSON.parse(localStorage.getItem('sec_best')||'null');
 let currentStudySet='acronyms';
@@ -683,29 +688,196 @@ function nextCard(){if(currentIdx>=deck.length-1){showResults();return;}currentI
 function prevCard(){if(currentIdx>0){currentIdx--;renderCard();}}
 function shuffleDeck(){shuffle(deck);currentIdx=0;renderCard();}
 function startQuiz(){const base=shuffle(getSelectedDeck());quizQ=base.slice(0,Math.min(20,base.length));quizIdx=0;quizCorrect=0;quizWrong=0;quizMissed=[];sessionMode='quiz';showScreen('quizScreen');renderQuizQ();}
+// ── Exam-style question engine ──────────────────────────────
+function _parseDef(def){if(!def)return{};const r={};def.split(/\n\n/).forEach(p=>{const m=p.match(/^([A-Za-z][A-Za-z\s]+):\n?([\s\S]+)/);if(m)r[m[1].trim().toLowerCase()]=m[2].trim();});return r;}
+function _shortAns(c){return c.set==='objectives'?c.acr:c.full;}
+const _RL=['A security analyst','A network engineer','A systems administrator','An IT manager','A penetration tester','A security architect','A SOC analyst','A CISO'];
+const _RO=['a financial services firm','a healthcare organization','a government contractor','a retail corporation','a cloud service provider','a manufacturing company'];
+function _rnd(a){return a[Math.floor(Math.random()*a.length)];}
+function _rR(){return _rnd(_RL);}function _rO(){return _rnd(_RO);}
+function _objCardStem(card,def,ro,org){
+  const answer=(card.acr||'').toLowerCase().slice(0,7);
+  const cat=card.cat;
+  const ex=(def.example||'').trim();
+  const E={
+    0:['Which foundational security concept does this BEST describe?','Which security principle or control is being illustrated?'],
+    1:['Which threat, attack type, or mitigation BEST classifies this?','Which security concept does this BEST describe?'],
+    2:['Which security architecture concept is being applied?','Which architectural approach does this represent?'],
+    3:['Which operational security practice is being described?','Which operational control addresses this scenario?'],
+    4:['Which governance or risk management concept does this represent?','Which governance practice is being applied?'],
+  };
+  const L={0:'security concept',1:'security threat or mitigation',2:'architectural concept',3:'operational security practice',4:'governance concept'};
+  if(ex.length>39){
+    const cleaned=ex.replace(/^[A-Z][\w\s\/\-.()',]{0,60}:\s*/,'').trim();
+    const sents=cleaned.split(/(?<=[.!?])\s+/).filter(s=>s.length>12);
+    const safe=sents.filter(s=>!s.toLowerCase().startsWith(answer));
+    const use=safe.slice(0,2).join(' ').trim();
+    if(use.length>30)return `${use} ${_rnd(E[cat]||E[0])}`;
+  }
+  const defLine=(def.definition||'').split('\n')[0];
+  const di=defLine.indexOf(' — ');
+  const desc=(di>=0?defLine.slice(di+3):defLine).trim();
+  if(desc.length>20&&!desc.toLowerCase().startsWith(answer)){
+    return `A Security+ exam question presents the following definition: "${desc}" Which ${L[cat]||'security concept'} does this BEST describe?`;
+  }
+  // def starts with answer term — try the second clause after the semicolon
+  const semiParts=defLine.split(/;\s*/);
+  if(semiParts.length>1){const altDesc=semiParts.slice(1).join('; ').trim();if(altDesc.length>20&&!altDesc.toLowerCase().startsWith(answer)){return `A Security+ exam question presents the following definition: "${altDesc}" Which ${L[cat]||'security concept'} does this BEST describe?`;}}
+  if(ex.length>10)return `A security exam presents this scenario: "${ex}" Which ${card.catName} concept is BEST illustrated?`;
+  return `${ro} at ${org} needs to identify a ${card.catName} concept. Which concept BEST applies based on its characteristics?`;
+}
+function _buildStem(card){
+  const ro=_rR(),org=_rO(),cat=card.cat;
+  // Objective cards: always card-specific via _objCardStem (never category-level)
+  if(card.set==='objectives')return _objCardStem(card,_parseDef(card.def||''),ro,org);
+  // Acronym cards: try definition-based stem when def doesn't reveal the acronym
+  const sd=(card.def||'').trim(),al=(card.acr||'').toLowerCase();
+  if(sd.length>15&&!sd.toLowerCase().includes(al)){
+    const catQ={0:'identity or access management solution',1:'threat or attack type',2:'cryptographic algorithm or protocol',3:'network protocol or technology',4:'security monitoring or protection tool',5:'cloud or virtualization concept',6:'risk management or continuity concept',7:'access control or wireless technology',8:'compliance framework or regulation',9:'vulnerability management concept',10:'email or web security mechanism',11:'hardware or infrastructure technology'};
+    return `A Security+ exam question presents this description: "${sd}" Which ${catQ[cat]||'security technology'} does this BEST describe?`;
+  }
+  // Fallback: hardcoded category stems (used only when def contains the acronym)
+  const P={
+    0:[
+      `${ro} at ${org} needs to implement a unified framework that verifies who users are before granting access, enforces what each authenticated user is permitted to do based on their role, and maintains a log of every action taken for audit purposes. Which technology provides all three of these functions?`,
+      `An organization requires that employees verify their identity using both a password and a one-time code delivered to their registered mobile device before accessing any company system. A single password alone is no longer sufficient. Which authentication technology enforces this requirement?`,
+      `Two organizations want to allow their users to log into each other's applications using their own existing credentials, without creating duplicate accounts in the partner's directory. The solution must use a standard protocol for passing authentication assertions between parties. Which technology enables this?`,
+      `${org} is replacing a legacy remote access system that transmits user credentials in cleartext across the network. The replacement protocol must use a challenge-response mechanism so that the actual password is never sent over the wire. Which protocol meets this requirement?`,
+      `${ro} is deploying a centralized directory service. Client applications need a standard protocol to query user accounts, verify credentials, and retrieve group memberships without embedding passwords in application code. Which protocol should be configured?`,
+    ],
+    1:[
+      `${ro} reviewing web server logs notices that user-supplied input is being appended directly to database queries, and several requests have returned data from tables the user should not have access to. Which attack type is occurring?`,
+      `An attacker registers a domain name one character different from a well-known company, builds a convincing clone of the company's login page, then emails a link to employees. Credentials entered on the fake site are captured by the attacker. Which attack technique is being used?`,
+      `A server receives millions of connection requests per second from thousands of different source IP addresses simultaneously. Legitimate users are unable to connect because the server is exhausted processing the flood of requests. Which attack is in progress?`,
+      `An attacker positions themselves between a client and server, intercepts all traffic, decrypts and optionally modifies it, then re-encrypts and forwards it to the intended recipient. Neither party detects anything unusual during the session. Which attack type describes this?`,
+      `The security team discovers a process running on a workstation that silently recorded all keystrokes—including banking credentials and email content—and periodically uploaded captured data to an external server over encrypted channels. Which type of malware is this?`,
+    ],
+    2:[
+      `A developer needs to store user passwords in a database so that even if the database is stolen, the original passwords cannot be recovered. The solution must use a one-way transformation and include random data to defeat precomputed lookup attacks. Which technique should be used?`,
+      `${org} needs to protect sensitive data at rest and in transit using a government-approved symmetric cipher that supports 128-bit, 192-bit, and 256-bit key lengths and has replaced the outdated DES standard. Which algorithm should be deployed?`,
+      `Two systems need to securely establish a shared encryption key over an untrusted public network without any prior communication or pre-shared secret. Which cryptographic protocol enables this key exchange?`,
+      `A web server needs to prove its identity to clients and establish an encrypted session. Clients verify the server's identity using a digital certificate signed by a trusted authority, then negotiate session encryption. Which protocol governs this process?`,
+      `${ro} needs to verify that a software package downloaded from a vendor's website has not been tampered with since publication. The vendor provides a fixed-length value computed from the file that the recipient can recompute and compare. Which technique is being used?`,
+    ],
+    3:[
+      `A remote employee needs to connect to internal corporate resources over the public internet with all traffic encrypted end-to-end, so that traffic appears to originate from inside the corporate network. Which technology creates this secure tunnel?`,
+      `${org} requires that every device—wired or wireless—must complete authentication against a RADIUS server before receiving any network access. Devices that fail authentication are placed in an isolated quarantine VLAN. Which standard enforces this at the port level?`,
+      `${ro} is eliminating Telnet from all network infrastructure devices. The replacement must encrypt all management sessions and support public-key authentication to prevent credential interception. Which protocol should replace Telnet?`,
+      `${org} needs to monitor performance and health metrics from routers, switches, and firewalls across the enterprise. The solution must authenticate management stations and encrypt all management traffic to prevent interception. Which protocol version should be deployed?`,
+      `The security team needs to create an encrypted site-to-site connection between two branch offices across the public internet. The solution must authenticate both endpoints and encrypt all traffic at the network layer without requiring changes to applications. Which protocol suite should be implemented?`,
+    ],
+    4:[
+      `${org}'s security team needs a single platform that ingests logs from firewalls, servers, cloud environments, and endpoints, normalizes the data, correlates events across sources, and generates prioritized alerts for analyst investigation. Which technology should be deployed?`,
+      `${ro} at ${org} needs an agent-based endpoint solution that detects threats by analyzing process behavior, memory activity, and network connections in real time—and allows SOC analysts to remotely isolate a compromised machine and collect forensic artifacts. Which technology provides this?`,
+      `${org} needs to prevent employees from emailing files containing social security numbers or credit card numbers to external addresses, or copying them to USB drives. The solution must inspect content, not just file names. Which technology enforces these policies?`,
+      `A network security team wants to detect port scans, exploit attempts, and known malicious traffic patterns on internal network segments without blocking or modifying any traffic—purely in passive monitoring mode. Which technology meets this requirement?`,
+      `${org} wants a security device at the network perimeter that does not just detect malicious traffic but actively blocks attacks and terminates sessions when a threat signature or anomaly threshold is matched. Which technology provides active blocking?`,
+    ],
+    5:[
+      `A startup needs to run virtual machines in the cloud. The provider manages all physical hardware, networking, storage, and hypervisor infrastructure. The startup is only responsible for the operating systems and applications it installs. Which cloud service model is being described?`,
+      `A development team uploads application code to a cloud platform and the provider automatically handles all underlying infrastructure, runtime scaling, and patching. The team pays only for the compute time the code actually uses. Which cloud service model does this describe?`,
+      `${org} is preparing to migrate workloads to a cloud platform. The security team needs to formally document which security responsibilities belong to the cloud provider and which belong to ${org}—specifically who patches the OS, the hypervisor, and the physical host. Which concept defines this division?`,
+      `${org} defines all cloud infrastructure—virtual networks, firewall rules, load balancers, and server configurations—in version-controlled code files. All changes are deployed through a pipeline rather than by manually clicking a management console. Which practice is being adopted?`,
+      `${org} uses two different public cloud providers for different workloads and wants to move container workloads between them seamlessly while enforcing consistent security policies across both environments. Which cloud deployment model describes this approach?`,
+    ],
+    6:[
+      `${org}'s business continuity planner is setting recovery targets for each critical system. For each system, the team identifies the maximum amount of time it can be unavailable after a failure before the business impact becomes unacceptable. Which metric defines this target?`,
+      `Following a ransomware attack that corrupted the production database, the recovery team needs to restore from backup. Leadership asks: what is the maximum amount of data loss—measured in time—that the organization can tolerate? Which metric answers this question?`,
+      `The risk management team calculates the probability of a specific threat event multiplied by the estimated financial loss if the event occurs, in order to prioritize which risks require immediate investment. Which calculation produces this dollar figure?`,
+      `${org} is conducting a formal analysis to identify which business processes are most critical, how long each can be interrupted before causing serious financial or operational harm, and what resources are needed to recover them. Which planning activity is being performed?`,
+      `An assessment reveals that a key business application runs on a single server with no failover capability, no redundant power, and no backup network path. A failure of any one component would cause indefinite service outage. Which risk concept describes this situation?`,
+    ],
+    7:[
+      `${org} is rolling out enterprise Wi-Fi across all office locations. The security policy requires each user to authenticate using their individual Active Directory credentials via a RADIUS server—not a shared passphrase. Which wireless security standard enables this enterprise authentication model?`,
+      `The network team is configuring switches so that any device connecting to a wired port must first complete authentication against the organization's directory. Unauthenticated devices receive no network access until they pass. Which standard enforces this control at the switch port level?`,
+      `${org}'s access control policy requires that employees receive only the specific permissions their job duties require, and that permissions are removed immediately when an employee changes roles or leaves the organization. Which security principle is this policy enforcing?`,
+      `At ${org}, access rights are assigned by job function rather than to individuals directly. When a new payroll clerk is hired, they automatically receive the same permissions as all other payroll clerks. Which access control model is being used?`,
+      `A government system automatically makes access decisions based on sensitivity labels attached to data objects and clearance levels assigned to users. The owner of the data cannot override the system's access decisions. Which access control model is being enforced?`,
+    ],
+    8:[
+      `${org} processes credit card payments and is preparing for a security audit. The auditor will verify that the organization has implemented required controls around cardholder data, including network segmentation, encryption at rest and in transit, and strict access control. Which industry standard governs these requirements?`,
+      `A hospital's privacy officer reminds all staff that federal law requires protecting the confidentiality and integrity of electronic patient health records, notifying patients within 60 days of a breach, and allowing patients to request copies of their own records. Which regulation governs these obligations?`,
+      `${org} collects personal data from residents of European Union member states, including names, email addresses, and browsing behavior. Legal counsel advises compliance with a regulation requiring lawful basis for processing, data minimization, and the right for individuals to request deletion of their data. Which regulation applies?`,
+      `The security team is implementing a cybersecurity framework developed by a U.S. federal agency that provides a catalog of security and privacy controls organized into control families, and is commonly required for federal systems and contractors. Which publication defines these controls?`,
+      `${org} is pursuing an internationally recognized certification that requires an independent auditor to verify the organization's information security management system meets a defined set of requirements for managing sensitive company and customer information. Which certification is being pursued?`,
+    ],
+    9:[
+      `A software vendor publicly discloses a critical vulnerability in its product and assigns it a unique identifier so that security tools, patch management systems, and public databases can all reference the same vulnerability consistently. Which system assigns this identifier?`,
+      `${org}'s vulnerability management team scores each discovered vulnerability using a standardized system that evaluates exploitability, the impact on confidentiality, integrity, and availability, and environmental factors—producing a score from 0 to 10. Which scoring standard is being used?`,
+      `After containing a ransomware incident at ${org}, the response team produces a formal written report covering the attack timeline, affected systems, how the attacker gained access, containment and eradication steps taken, and recommendations to prevent recurrence. Which deliverable is this?`,
+      `${ro} is analyzing a compromised workstation and identifies unusual outbound DNS queries, a new scheduled task pointing to a suspicious binary, and a process communicating with a known command-and-control IP address. Which phase of the incident response lifecycle is this analysis part of?`,
+      `${org}'s threat intelligence team subscribes to feeds that deliver structured, machine-readable data describing active threat actors, their tactics and techniques, and associated indicators of compromise, in a format designed for automated ingestion by security platforms. Which standard format enables this sharing?`,
+    ],
+    10:[
+      `${org}'s email domain is being spoofed in phishing campaigns targeting its customers. The security team publishes a DNS record that explicitly lists which mail servers are authorized to send email on behalf of the domain. Receiving servers can use this record to reject messages from unauthorized sources. Which protocol is being configured?`,
+      `${ro} wants all outgoing email from ${org} to be cryptographically signed using a private key, with the corresponding public key published in DNS. Receiving mail servers can verify that each message was sent by an authorized server and was not modified in transit. Which protocol enables this signing?`,
+      `${org} wants to instruct receiving mail servers on what action to take—reject, quarantine, or allow—when incoming email fails authentication checks, and to receive aggregate reports about which sources are sending email using the organization's domain. Which protocol provides this policy and reporting mechanism?`,
+      `A web application is vulnerable because it renders user-submitted content directly in other users' browsers without sanitization. An attacker injects a script into a comment field that steals the session cookies of any user who views that page. Which attack type is being exploited?`,
+      `A user visits a legitimate but compromised news website. Without clicking anything, the user's browser is silently redirected to a malicious site that exploits an unpatched browser vulnerability and installs malware. The user notices nothing unusual. Which type of attack caused this?`,
+    ],
+    11:[
+      `${org} is deploying new servers and requires that only cryptographically signed bootloaders and operating system images be permitted to execute during startup. Any unsigned or tampered boot component must be blocked before the OS loads. Which firmware security feature must be enabled?`,
+      `Laptops at ${org} use full-disk encryption, but the security team also requires that the decryption key be bound to the specific hardware configuration of each machine. If a drive is removed and inserted into a different computer, the data must remain inaccessible. Which hardware component enforces this binding?`,
+      `${org}'s storage infrastructure must tolerate the simultaneous failure of two hard drives in a storage array without any data loss and without interrupting service. Which storage technology provides this level of redundancy?`,
+      `${ro} discovers a small device hidden behind a wall plate in a conference room that is passively capturing all network traffic passing through that segment without sending any traffic of its own. Which type of attack hardware is this?`,
+      `${org} needs to secure a sensitive server room so that entry requires individual badge authentication, only one person can pass through at a time, and a second person cannot slip through while an authorized person is entering. Which physical security control implements these requirements?`,
+    ],
+  };
+  return _rnd(P[cat]||[`${ro} at ${org} needs to implement a security control. Which technology BEST applies?`]);
+}
+function makeExamQuestion(card,pool){
+  const def=_parseDef(card.def||'');
+  const answer=_shortAns(card);
+  const stem=_buildStem(card);
+  const myId=cardId(card);
+  let cands=pool.filter(c=>c.set===card.set&&cardId(c)!==myId&&c.cat===card.cat);
+  if(cands.length<3)cands=pool.filter(c=>c.set===card.set&&cardId(c)!==myId);
+  if(cands.length<3)cands=pool.filter(c=>cardId(c)!==myId);
+  shuffle(cands);
+  const used=new Set([answer]);const wrong=[];
+  for(const c of cands){if(wrong.length>=3)break;const a=_shortAns(c);if(a&&!used.has(a)){used.add(a);wrong.push(a);}}
+  while(wrong.length<3)wrong.push(['Security policy control','Incident response plan','Risk assessment framework'][wrong.length]);
+  const allOpts=shuffle([answer,...wrong]);
+  const options=allOpts.map((text,i)=>({letter:'ABCD'[i],text,isCorrect:text===answer}));
+  const explanation=(def.definition||'').split('\n')[0]||`${card.acr}: ${card.full||''}`;
+  return{stem,options,card,domain:card.catName||'Security+',explanation,trick:card.trick||''};
+}
+// ────────────────────────────────────────────────────────────
 function renderQuizQ(){
   const q=quizQ[quizIdx];if(!q)return;
-  const isConcept=q.set==='objectives';
-  const quizTitle=document.getElementById('quizAcronym');
-  quizTitle.textContent=q.acr;quizTitle.style.color=CAT_COLORS[q.cat];quizTitle.classList.toggle('concept-display',isConcept);
-  document.getElementById('quizQuestionLabel').textContent=isConcept?'WHERE DOES THIS OBJECTIVE ITEM FIT?':'WHAT DOES THIS ACRONYM STAND FOR?';
-  document.getElementById('quizDirection').textContent=isConcept?'Select the correct exam objective context':'Select the correct full name';
+  currentQuestion=makeExamQuestion(q,getActiveCards());
   const pct=((quizIdx+1)/quizQ.length)*100;
-  document.getElementById('quizProgressFill').style.width=pct+'%';document.getElementById('quizProgressText').textContent=`${quizIdx+1} / ${quizQ.length}`;
-  document.getElementById('quizCorrectChip').textContent=`✓ ${quizCorrect}`;document.getElementById('quizWrongChip').textContent=`✗ ${quizWrong}`;
-  document.getElementById('quizFeedback').className='quiz-feedback';document.getElementById('nextQuizBtn').style.display='none';
-  const pool=getActiveCards().filter(c=>cardId(c)!==cardId(q));shuffle(pool);
-  const opts=shuffle([q,...pool.slice(0,3)]);
+  document.getElementById('quizProgressFill').style.width=pct+'%';
+  document.getElementById('quizProgressText').textContent=`${quizIdx+1} / ${quizQ.length}`;
+  document.getElementById('quizCorrectChip').textContent=`✓ ${quizCorrect}`;
+  document.getElementById('quizWrongChip').textContent=`✗ ${quizWrong}`;
+  const col=CAT_COLORS[q.cat]||'#00d4ff';
+  const badge=document.getElementById('quizDomainBadge');
+  badge.textContent=currentQuestion.domain.toUpperCase();
+  badge.style.cssText=`background:${col}20;color:${col};border:1px solid ${col}40;`;
+  document.getElementById('quizQNum').textContent=`Q ${quizIdx+1} OF ${quizQ.length}`;
+  document.getElementById('quizStem').textContent=currentQuestion.stem;
+  document.getElementById('quizFeedback').className='quiz-feedback';
+  document.getElementById('nextQuizBtn').style.display='none';
   const con=document.getElementById('quizOptions');con.innerHTML='';
-  opts.forEach(o=>{const b=document.createElement('button');b.className='quiz-opt';b.textContent=o.full;b.onclick=()=>answerQ(b,cardId(o)===cardId(q),q);con.appendChild(b);});
+  currentQuestion.options.forEach(opt=>{
+    const b=document.createElement('button');b.className='quiz-opt';
+    b.innerHTML=`<span class="quiz-opt-letter">${opt.letter}</span><span>${opt.text}</span>`;
+    b.dataset.correct=opt.isCorrect?'1':'0';
+    b.onclick=()=>answerQ(b,opt.isCorrect,currentQuestion);
+    con.appendChild(b);
+  });
 }
-function answerQ(btn,ok,q){
-  document.querySelectorAll('.quiz-opt').forEach(o=>{o.disabled=true;if(o.textContent===q.full)o.classList.add('correct-ans');});
+function answerQ(btn,ok,question){
+  document.querySelectorAll('.quiz-opt').forEach(o=>{o.disabled=true;if(o.dataset.correct==='1')o.classList.add('correct-ans');});
   const fb=document.getElementById('quizFeedback');
+  const q=question.card;
   if(ok){quizCorrect++;btn.classList.add('correct-ans');fb.className='quiz-feedback correct-fb show';document.getElementById('feedbackTitle').textContent='✅ Correct!';}
   else{quizWrong++;btn.classList.add('wrong-ans');fb.className='quiz-feedback wrong-fb show';document.getElementById('feedbackTitle').textContent='❌ Not quite!';quizMissed.push(q);}
-  document.getElementById('feedbackBody').textContent=`${q.acr} = ${q.full}`;document.getElementById('feedbackTrick').textContent='🧠 '+q.trick;
-  document.getElementById('quizCorrectChip').textContent=`✓ ${quizCorrect}`;document.getElementById('quizWrongChip').textContent=`✗ ${quizWrong}`;
+  document.getElementById('feedbackBody').textContent=question.explanation;
+  document.getElementById('feedbackTrick').textContent='🧠 '+(question.trick||q.trick||'');
+  document.getElementById('quizCorrectChip').textContent=`✓ ${quizCorrect}`;
+  document.getElementById('quizWrongChip').textContent=`✗ ${quizWrong}`;
   document.getElementById('nextQuizBtn').style.display='block';
 }
 function nextQuizQuestion(){if(quizIdx>=quizQ.length-1){showResults();return;}quizIdx++;renderQuizQ();}
