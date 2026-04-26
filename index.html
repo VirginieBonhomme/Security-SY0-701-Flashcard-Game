@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Security+ SY0-701 Flashcard Game — Acronyms, Concepts, and Protocols</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700&display=swap');
+:root{--bg:#060912;--surface:#0d1526;--surface2:#131f35;--border:#1a3050;--accent:#00f5d4;--gold:#ffd700;--red:#ef4444;--green:#22c55e;--text:#e8f0fe;--muted:#4a6080;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,245,212,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,212,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+.app{position:relative;z-index:1;}
+.screen{display:none;min-height:100vh;}
+.screen.active{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+#homeScreen{text-align:center;gap:24px;}
+.logo-area{animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.logo-icon{font-size:4rem;display:block;margin-bottom:8px;filter:drop-shadow(0 0 20px var(--accent));}
+h1.game-title{font-family:'Black Ops One',cursive;font-size:clamp(1.8rem,6vw,3.5rem);color:var(--accent);text-shadow:0 0 30px rgba(0,245,212,.5);letter-spacing:3px;line-height:1.1;}
+.subtitle-tag{font-family:'Share Tech Mono',monospace;color:var(--muted);font-size:.8rem;letter-spacing:4px;margin-top:4px;}
+.stats-row{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;}
+.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 22px;text-align:center;min-width:90px;}
+.stat-num{font-family:'Orbitron',monospace;font-size:1.8rem;font-weight:900;color:var(--accent);display:block;}
+.stat-label{font-size:.7rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:4px;}
+.mode-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;width:100%;max-width:680px;}
+.mode-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px 18px;cursor:pointer;transition:all .3s;text-align:center;}
+.mode-card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 0 30px rgba(0,245,212,.2);}
+.mode-icon{font-size:2.2rem;display:block;margin-bottom:8px;}
+.mode-name{font-family:'Orbitron',monospace;font-size:.85rem;font-weight:700;color:var(--accent);letter-spacing:1px;}
+.mode-desc{font-size:.75rem;color:var(--muted);margin-top:6px;line-height:1.4;}
+.category-select{width:100%;max-width:440px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:.9rem;padding:12px 16px;outline:none;cursor:pointer;}
+.category-select:focus{border-color:var(--accent);}
+.category-select option{background:var(--surface2);}
+#cardScreen{gap:14px;}
+.top-bar{width:100%;max-width:680px;display:flex;align-items:center;gap:10px;}
+.progress-wrap{flex:1;background:var(--surface);border-radius:20px;height:8px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),#00a896);border-radius:20px;transition:width .4s ease;}
+.progress-text{font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--muted);white-space:nowrap;}
+.score-display{display:flex;gap:8px;}
+.score-chip{font-family:'Orbitron',monospace;font-size:.75rem;font-weight:700;padding:4px 10px;border-radius:20px;}
+.score-chip.correct{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3);}
+.score-chip.wrong{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3);}
+.card-scene{width:100%;max-width:680px;height:min(460px,62vh);min-height:360px;perspective:1200px;cursor:pointer;flex-shrink:0;}
+.card-3d{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.4,.2,.2,1);}
+.card-3d.flipped{transform:rotateY(180deg);}
+.card-face{position:absolute;inset:0;border-radius:20px;backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;border:1px solid var(--border);overflow:hidden;}
+.card-front{background:var(--surface);}
+.card-back{background:var(--surface2);transform:rotateY(180deg);overflow-y:auto;justify-content:flex-start;padding-top:52px;padding-bottom:42px;}
+.card-category-tag{position:absolute;top:14px;left:14px;font-family:'Share Tech Mono',monospace;font-size:.65rem;padding:3px 9px;border-radius:10px;letter-spacing:1px;}
+.card-num-tag{position:absolute;top:14px;right:14px;font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--muted);}
+.flip-hint{position:absolute;bottom:12px;font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--muted);letter-spacing:1px;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:.5;}50%{opacity:1;}}
+.acronym-display{font-family:'Black Ops One',cursive;font-size:clamp(2.5rem,10vw,5.5rem);color:var(--accent);text-shadow:0 0 40px rgba(0,245,212,.4);letter-spacing:4px;text-align:center;line-height:1;}
+.acronym-display.concept-display{font-family:'Orbitron',monospace;font-size:clamp(1.1rem,4vw,2.3rem);letter-spacing:1px;line-height:1.18;max-width:100%;overflow-wrap:anywhere;}
+.question-text{font-size:1rem;color:var(--muted);margin-top:10px;font-style:italic;}
+.full-name{font-family:'Orbitron',monospace;font-size:clamp(.8rem,2.2vw,1.1rem);font-weight:700;color:var(--accent);text-align:center;line-height:1.4;margin-bottom:10px;}
+.definition{font-size:.88rem;color:var(--text);text-align:center;line-height:1.5;opacity:.85;margin-bottom:12px;white-space:pre-line;}
+.memory-trick{background:rgba(255,215,0,.07);border:1px solid rgba(255,215,0,.2);border-radius:10px;padding:10px 14px;text-align:center;width:100%;}
+.trick-label{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--gold);letter-spacing:2px;margin-bottom:3px;display:block;}
+.trick-text{font-size:.82rem;color:var(--gold);font-weight:600;line-height:1.4;}
+.answer-btns{display:flex;gap:12px;width:100%;max-width:680px;}
+.ans-btn{flex:1;padding:14px;border-radius:14px;border:1px solid;font-family:'Orbitron',monospace;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:1px;background:transparent;}
+.ans-btn.got-it{border-color:var(--green);color:var(--green);}
+.ans-btn.got-it:hover{background:rgba(34,197,94,.1);transform:translateY(-2px);}
+.ans-btn.missed{border-color:var(--red);color:var(--red);}
+.ans-btn.missed:hover{background:rgba(239,68,68,.1);transform:translateY(-2px);}
+.nav-btns{display:flex;gap:10px;width:100%;max-width:680px;justify-content:center;}
+.nav-btn{padding:9px 20px;border-radius:10px;border:1px solid var(--border);color:var(--muted);background:transparent;font-family:'Exo 2',sans-serif;font-size:.82rem;cursor:pointer;transition:all .2s;}
+.nav-btn:hover{border-color:var(--accent);color:var(--accent);}
+#quizScreen{gap:18px;}
+.quiz-question-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:26px;width:100%;max-width:680px;text-align:center;}
+.quiz-q-label{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--muted);letter-spacing:2px;margin-bottom:10px;}
+.quiz-acronym{font-family:'Black Ops One',cursive;font-size:clamp(2rem,8vw,4rem);color:var(--accent);text-shadow:0 0 30px rgba(0,245,212,.4);margin-bottom:6px;}
+.quiz-acronym.concept-display{font-family:'Orbitron',monospace;font-size:clamp(1rem,4vw,2rem);line-height:1.2;overflow-wrap:anywhere;}
+.quiz-direction{font-size:.85rem;color:var(--muted);font-style:italic;}
+.quiz-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:680px;}
+.quiz-opt{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:all .2s;text-align:left;font-family:'Exo 2',sans-serif;font-size:.85rem;color:var(--text);line-height:1.4;}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent);background:rgba(0,245,212,.05);}
+.quiz-opt.correct-ans{border-color:var(--green)!important;background:rgba(34,197,94,.1)!important;color:var(--green);}
+.quiz-opt.wrong-ans{border-color:var(--red)!important;background:rgba(239,68,68,.1)!important;color:var(--red);}
+.quiz-opt:disabled{cursor:not-allowed;}
+.quiz-feedback{width:100%;max-width:680px;border-radius:12px;padding:14px 18px;display:none;animation:slideUp .3s ease;}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.correct-fb{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.3);}
+.quiz-feedback.wrong-fb{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);}
+.feedback-title{font-weight:700;font-size:.95rem;margin-bottom:4px;}
+.feedback-trick{font-size:.82rem;color:var(--gold);margin-top:6px;font-style:italic;}
+.next-quiz-btn{padding:13px 36px;border-radius:12px;background:var(--accent);color:var(--bg);border:none;font-family:'Orbitron',monospace;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:1px;}
+.next-quiz-btn:hover{background:#00d4b8;transform:translateY(-2px);}
+#resultsScreen{text-align:center;gap:20px;}
+.result-icon{font-size:4.5rem;animation:bounce .6s ease;}
+@keyframes bounce{0%{transform:scale(0);}60%{transform:scale(1.2);}100%{transform:scale(1);}}
+.result-title{font-family:'Black Ops One',cursive;font-size:clamp(1.6rem,5vw,2.8rem);color:var(--accent);}
+.result-score{font-family:'Orbitron',monospace;font-size:clamp(2.5rem,10vw,5rem);font-weight:900;line-height:1;}
+.result-sub{color:var(--muted);font-size:.95rem;}
+.result-breakdown{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;}
+.result-stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 22px;min-width:110px;}
+.result-stat-num{font-family:'Orbitron',monospace;font-size:1.8rem;font-weight:900;display:block;}
+.result-stat-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+.missed-list{background:var(--surface);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:18px;max-width:600px;width:100%;max-height:200px;overflow-y:auto;text-align:left;}
+.missed-title{font-family:'Orbitron',monospace;font-size:.75rem;color:var(--red);letter-spacing:1px;margin-bottom:10px;}
+.missed-item{display:flex;gap:10px;padding:5px 0;border-bottom:1px solid var(--border);font-size:.82rem;}
+.missed-item:last-child{border-bottom:none;}
+.missed-acr{font-family:'Share Tech Mono',monospace;color:var(--red);min-width:80px;font-weight:bold;}
+.missed-full{color:var(--muted);}
+.action-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.action-btn{padding:13px 26px;border-radius:12px;font-family:'Orbitron',monospace;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:1px;}
+.action-btn.primary{background:var(--accent);color:var(--bg);border:none;}
+.action-btn.primary:hover{background:#00d4b8;transform:translateY(-2px);}
+.action-btn.secondary{background:transparent;color:var(--accent);border:1px solid var(--accent);}
+.action-btn.secondary:hover{background:rgba(0,245,212,.08);transform:translateY(-2px);}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+@keyframes flashGreen{0%{box-shadow:0 0 0 rgba(34,197,94,0);}50%{box-shadow:0 0 40px rgba(34,197,94,.4);}100%{box-shadow:0 0 0 rgba(34,197,94,0);}}
+@keyframes flashRed{0%{box-shadow:0 0 0 rgba(239,68,68,0);}50%{box-shadow:0 0 40px rgba(239,68,68,.4);}100%{box-shadow:0 0 0 rgba(239,68,68,0);}}
+.flash-green{animation:flashGreen .5s ease;}.flash-red{animation:flashRed .5s ease;}
+
+@media (hover:none){
+  .mode-card:hover,.ans-btn.got-it:hover,.ans-btn.missed:hover,.nav-btn:hover,.next-quiz-btn:hover,.action-btn.primary:hover,.action-btn.secondary:hover{transform:none;box-shadow:none;}
+}
+
+@media (max-width:720px){
+  body{min-height:100dvh;}
+  body::before{background-size:28px 28px;}
+  .screen{min-height:100dvh;}
+  .screen.active{justify-content:flex-start;padding:14px;padding-top:max(14px,env(safe-area-inset-top));padding-bottom:max(16px,env(safe-area-inset-bottom));}
+  #homeScreen{gap:14px;}
+  .logo-area{animation:none;}
+  .logo-icon{font-size:2.75rem;margin-bottom:4px;}
+  h1.game-title{font-size:clamp(1.7rem,11vw,2.6rem);letter-spacing:1.5px;}
+  .subtitle-tag{font-size:.68rem;letter-spacing:2px;line-height:1.35;max-width:320px;margin-inline:auto;}
+  .stats-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;max-width:440px;}
+  .stat-box{min-width:0;padding:10px 8px;border-radius:10px;}
+  .stat-num{font-size:1.35rem;}
+  .stat-label{font-size:.58rem;letter-spacing:.5px;}
+  .category-select{max-width:440px;font-size:.86rem;padding:11px 12px;}
+  .mode-grid{grid-template-columns:1fr;gap:10px;max-width:440px;}
+  .mode-card{display:grid;grid-template-columns:42px 1fr;grid-template-areas:"icon name" "icon desc";align-items:center;text-align:left;padding:14px;border-radius:12px;}
+  .mode-icon{grid-area:icon;font-size:1.8rem;margin:0;}
+  .mode-name{grid-area:name;font-size:.82rem;}
+  .mode-desc{grid-area:desc;font-size:.72rem;margin-top:2px;}
+  #cardScreen,#quizScreen,#resultsScreen{gap:10px;}
+  .top-bar{max-width:100%;display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"home progress count" "score score score";gap:8px;align-items:center;}
+  .top-bar>.nav-btn{grid-area:home;padding:8px 10px;font-size:.72rem;}
+  .progress-wrap{grid-area:progress;min-width:0;}
+  .progress-text{grid-area:count;font-size:.68rem;}
+  .score-display{grid-area:score;justify-content:center;}
+  .score-chip{font-size:.68rem;padding:4px 8px;}
+  .card-scene{height:clamp(390px,62dvh,540px);min-height:390px;max-width:100%;}
+  .card-face{border-radius:16px;padding:22px 16px;}
+  .card-back{padding:46px 16px 38px;}
+  .card-category-tag{top:10px;left:10px;max-width:66%;font-size:.56rem;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .card-num-tag{top:10px;right:10px;font-size:.56rem;}
+  .acronym-display{font-size:clamp(2rem,17vw,4.3rem);letter-spacing:2px;max-width:100%;overflow-wrap:anywhere;}
+  .acronym-display.concept-display{font-size:clamp(1.05rem,7vw,1.8rem);letter-spacing:.5px;}
+  .question-text{font-size:.86rem;text-align:center;}
+  .full-name{font-size:clamp(.76rem,3.4vw,.95rem);line-height:1.35;margin-bottom:8px;}
+  .definition{font-size:.82rem;line-height:1.45;text-align:left;width:100%;}
+  .memory-trick{padding:9px 10px;border-radius:8px;}
+  .trick-label{font-size:.54rem;letter-spacing:1.2px;}
+  .trick-text{font-size:.76rem;text-align:left;}
+  .answer-btns,.nav-btns{max-width:100%;gap:8px;}
+  .ans-btn{padding:12px 8px;font-size:.72rem;letter-spacing:.5px;border-radius:11px;}
+  .nav-btns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));}
+  .nav-btn{padding:9px 8px;font-size:.72rem;white-space:nowrap;}
+  .quiz-question-box{max-width:100%;padding:16px;border-radius:14px;}
+  .quiz-q-label{font-size:.56rem;letter-spacing:1.2px;line-height:1.4;}
+  .quiz-acronym{font-size:clamp(1.8rem,14vw,3.4rem);overflow-wrap:anywhere;}
+  .quiz-acronym.concept-display{font-size:clamp(1rem,7vw,1.65rem);}
+  .quiz-options{grid-template-columns:1fr;max-width:100%;gap:8px;}
+  .quiz-opt{padding:12px;font-size:.8rem;border-radius:10px;}
+  .quiz-feedback{max-width:100%;padding:12px 14px;font-size:.82rem;}
+  .next-quiz-btn{width:100%;max-width:440px;padding:12px;font-size:.78rem;}
+  .result-icon{font-size:3.4rem;}
+  .result-breakdown{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;max-width:440px;}
+  .result-stat{min-width:0;padding:10px 8px;}
+  .result-stat-num{font-size:1.35rem;}
+  .missed-list{max-height:32dvh;padding:14px;}
+  .missed-item{display:grid;grid-template-columns:72px 1fr;font-size:.78rem;}
+  .missed-acr{min-width:0;}
+  .action-btns{width:100%;max-width:440px;display:grid;grid-template-columns:1fr;}
+  .action-btn{width:100%;padding:12px;font-size:.76rem;}
+}
+
+@media (max-width:380px){
+  .screen.active{padding-inline:10px;}
+  .stats-row,.result-breakdown{gap:6px;}
+  .stat-box,.result-stat{padding:8px 6px;}
+  .stat-num,.result-stat-num{font-size:1.18rem;}
+  .stat-label,.result-stat-label{font-size:.52rem;}
+  .card-scene{height:clamp(410px,64dvh,560px);min-height:410px;}
+  .definition{font-size:.78rem;}
+  .nav-btn{font-size:.66rem;padding-inline:5px;}
+}
+
+@media (min-width:1100px){
+  .screen.active{padding:28px;}
+  .top-bar,.card-scene,.answer-btns,.nav-btns,.quiz-question-box,.quiz-options,.quiz-feedback{max-width:760px;}
+  .card-scene{height:min(500px,64vh);}
+  .mode-grid{max-width:760px;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="screen active" id="homeScreen">
+  <div class="logo-area"><span class="logo-icon">🔐</span><h1 class="game-title">SECURITY+<br>FLASH MASTER</h1><div class="subtitle-tag">SY0-701 · ACRONYMS · CONCEPTS · PROTOCOLS</div></div>
+  <div class="stats-row">
+    <div class="stat-box"><span class="stat-num" id="totalStat">321</span><div class="stat-label">Current Set</div></div>
+    <div class="stat-box"><span class="stat-num" id="masteredCount" style="color:var(--green)">0</span><div class="stat-label">Mastered</div></div>
+    <div class="stat-box"><span class="stat-num" id="bestScore" style="color:var(--gold)">—</span><div class="stat-label">Best Score</div></div>
+  </div>
+  <select class="category-select" id="studySetPicker" onchange="setStudySet(this.value)">
+    <option value="acronyms">🔤 Official Acronyms</option>
+    <option value="objectives">🧭 Concepts &amp; Protocols by Domain</option>
+    <option value="all">📚 Everything</option>
+  </select>
+  <select class="category-select" id="categoryPicker" onchange="updateHomeStats()">
+    <option value="all">📚 All Categories (321 cards)</option>
+    <option value="0">🔐 Authentication &amp; Identity</option>
+    <option value="1">🦠 Threats &amp; Attacks</option>
+    <option value="2">🔒 Cryptography</option>
+    <option value="3">🌐 Networking</option>
+    <option value="4">🛡️ Security Tools &amp; Monitoring</option>
+    <option value="5">☁️ Cloud &amp; Virtualization</option>
+    <option value="6">📊 Risk &amp; Business Continuity</option>
+    <option value="7">🔑 Access Control &amp; Wireless</option>
+    <option value="8">📋 Compliance &amp; Governance</option>
+    <option value="9">🕵️ Vulnerability &amp; Incident Response</option>
+    <option value="10">📧 Email, Web &amp; General</option>
+    <option value="11">💾 Hardware &amp; Infrastructure</option>
+  </select>
+  <div class="mode-grid">
+    <div class="mode-card" onclick="startFlashcards()"><span class="mode-icon">🃏</span><div class="mode-name">FLASHCARDS</div><div class="mode-desc">Flip cards, see the trick, mark what you know</div></div>
+    <div class="mode-card" onclick="startQuiz()"><span class="mode-icon">⚡</span><div class="mode-name">QUIZ MODE</div><div class="mode-desc">4 choices, pick the right one, beat your score</div></div>
+    <div class="mode-card" onclick="startMissedOnly()"><span class="mode-icon">🎯</span><div class="mode-name">WEAK SPOTS</div><div class="mode-desc">Only the ones you got wrong — drill until perfect</div></div>
+  </div>
+</div>
+<div class="screen" id="cardScreen">
+  <div class="top-bar"><button class="nav-btn" onclick="goHome()">← HOME</button><div class="progress-wrap"><div class="progress-fill" id="progressFill" style="width:0%"></div></div><div class="progress-text" id="progressText">1/1</div><div class="score-display"><div class="score-chip correct" id="correctChip">✓ 0</div><div class="score-chip wrong" id="wrongChip">✗ 0</div></div></div>
+  <div class="card-scene" id="cardScene" onclick="flipCard()">
+    <div class="card-3d" id="card3d">
+      <div class="card-face card-front"><div class="card-category-tag" id="frontCatTag"></div><div class="card-num-tag" id="frontNumTag"></div><div class="acronym-display" id="cardAcronym">AAA</div><div class="question-text" id="cardQuestionText">What does this stand for?</div><div class="flip-hint">TAP TO REVEAL ▾</div></div>
+      <div class="card-face card-back"><div class="card-category-tag" id="backCatTag"></div><div class="full-name" id="cardFullName"></div><div class="definition" id="cardDefinition"></div><div class="memory-trick"><span class="trick-label">🧠 MEMORY TRICK</span><div class="trick-text" id="trickText"></div></div><div class="flip-hint">TAP TO FLIP BACK ▴</div></div>
+    </div>
+  </div>
+  <div class="answer-btns" id="answerBtns" style="display:none"><button class="ans-btn missed" onclick="markCard(false)">✗ MISSED IT</button><button class="ans-btn got-it" onclick="markCard(true)">✓ GOT IT</button></div>
+  <div class="nav-btns"><button class="nav-btn" onclick="prevCard()">◀ PREV</button><button class="nav-btn" onclick="shuffleDeck()">⟳ SHUFFLE</button><button class="nav-btn" onclick="nextCard()">NEXT ▶</button></div>
+</div>
+<div class="screen" id="quizScreen">
+  <div class="top-bar"><button class="nav-btn" onclick="goHome()">← HOME</button><div class="progress-wrap"><div class="progress-fill" id="quizProgressFill" style="width:0%"></div></div><div class="progress-text" id="quizProgressText">1/20</div><div class="score-display"><div class="score-chip correct" id="quizCorrectChip">✓ 0</div><div class="score-chip wrong" id="quizWrongChip">✗ 0</div></div></div>
+  <div class="quiz-question-box"><div class="quiz-q-label" id="quizQuestionLabel">WHAT DOES THIS ACRONYM STAND FOR?</div><div class="quiz-acronym" id="quizAcronym">AAA</div><div class="quiz-direction" id="quizDirection">Select the correct full name</div></div>
+  <div class="quiz-options" id="quizOptions"></div>
+  <div class="quiz-feedback" id="quizFeedback"><div class="feedback-title" id="feedbackTitle"></div><div id="feedbackBody"></div><div class="feedback-trick" id="feedbackTrick"></div></div>
+  <button class="next-quiz-btn" id="nextQuizBtn" onclick="nextQuizQuestion()" style="display:none">NEXT QUESTION →</button>
+</div>
+<div class="screen" id="resultsScreen">
+  <div class="result-icon" id="resultIcon">🏆</div><div class="result-title" id="resultTitle">DONE</div><div class="result-score" id="resultScore" style="color:var(--accent)">100%</div><div class="result-sub" id="resultSub"></div>
+  <div class="result-breakdown"><div class="result-stat"><span class="result-stat-num" id="resCorrect" style="color:var(--green)">0</span><div class="result-stat-label">Correct</div></div><div class="result-stat"><span class="result-stat-num" id="resWrong" style="color:var(--red)">0</span><div class="result-stat-label">Missed</div></div><div class="result-stat"><span class="result-stat-num" id="resTotal" style="color:var(--muted)">0</span><div class="result-stat-label">Total</div></div></div>
+  <div class="missed-list" id="missedList" style="display:none"><div class="missed-title">⚠ STUDY THESE AGAIN</div><div id="missedItems"></div></div>
+  <div class="action-btns"><button class="action-btn primary" onclick="retrySession()">⟳ TRY AGAIN</button><button class="action-btn secondary" id="drillBtn" onclick="drillMissed()" style="display:none">🎯 DRILL MISSED</button><button class="action-btn secondary" onclick="goHome()">🏠 HOME</button></div>
+</div>
+</div>
+<script src="objective_cards.js"></script>
+<script>
+// Inline all 321 cards
+const ALL_CARDS=[
+{cat:0,catName:"Auth & Identity",acr:"AAA",full:"Authentication, Authorization, and Accounting",def:"The 3 pillars of access control — who are you, what can you do, what did you do?",trick:"Triple A battery — powers your identity system"},
+{cat:0,catName:"Auth & Identity",acr:"CHAP",full:"Challenge Handshake Authentication Protocol",def:"Verifies identity using challenge-response — password never sent in plaintext",trick:"CHAP = CHAllenge Proves identity — never sends the actual password"},
+{cat:0,catName:"Auth & Identity",acr:"CIA",full:"Confidentiality, Integrity, Availability",def:"The three core goals of all security programs",trick:"CIA = the 3 promises: secret, accurate, always accessible"},
+{cat:0,catName:"Auth & Identity",acr:"DAC",full:"Discretionary Access Control",def:"Resource OWNER decides who gets access",trick:"D = Discretion. The OWNER uses their discretion to share"},
+{cat:0,catName:"Auth & Identity",acr:"EAP",full:"Extensible Authentication Protocol",def:"Framework supporting many authentication methods over networks",trick:"E = Extensible = Expandable — supports MANY auth methods"},
+{cat:0,catName:"Auth & Identity",acr:"HOTP",full:"HMAC-based One-time Password",def:"OTP based on a counter value — increments each use",trick:"H = HMAC + Counter-based — counts each use like a clicker"},
+{cat:0,catName:"Auth & Identity",acr:"IAM",full:"Identity and Access Management",def:"System for managing who has access to what resources",trick:"I AM who I say I AM — IAM = Identity"},
+{cat:0,catName:"Auth & Identity",acr:"IdP",full:"Identity Provider",def:"The system that verifies who you are (like Google or Microsoft)",trick:"IdP = I do Prove who you are"},
+{cat:0,catName:"Auth & Identity",acr:"KDC",full:"Key Distribution Center",def:"Kerberos server that issues authentication tickets",trick:"KDC = Key Distributor Central — the ticket booth for the network"},
+{cat:0,catName:"Auth & Identity",acr:"LDAP",full:"Lightweight Directory Access Protocol",def:"Protocol for querying directory services like Active Directory",trick:"LDAP = Looking Directly At People — it's a digital phone book protocol"},
+{cat:0,catName:"Auth & Identity",acr:"LEAP",full:"Lightweight Extensible Authentication Protocol",def:"Older Cisco wireless authentication protocol — now considered weak",trick:"LEAP = Lightweight but Leaky — deprecated Cisco auth, avoid it"},
+{cat:0,catName:"Auth & Identity",acr:"MAC",full:"Mandatory Access Control / Media Access Control / Message Authentication Code",def:"CompTIA lists three MAC meanings: system-enforced access control, a Layer 2 hardware address, and a keyed integrity/authentication check.",trick:"MAC has 3 exam meanings: Must Access Control, Machine Address Code, and Message Auth Check"},
+{cat:0,catName:"Auth & Identity",acr:"MFA",full:"Multifactor Authentication",def:"Requiring more than one proof of identity to log in",trick:"M = Multiple — more than one factor to prove YOU are you"},
+{cat:0,catName:"Auth & Identity",acr:"OAUTH",full:"Open Authorization",def:"Lets apps access your data without giving them your password",trick:"OAuth = Open the door without giving your key"},
+{cat:0,catName:"Auth & Identity",acr:"PAM",full:"Privileged Access Management / Pluggable Authentication Modules",def:"CompTIA lists two PAM meanings: controlling high-privilege accounts, and Linux modules that plug authentication methods into services.",trick:"PAM can mean Protect Admins or Plug Auth Modules"},
+{cat:0,catName:"Auth & Identity",acr:"PEAP",full:"Protected Extensible Authentication Protocol",def:"EAP wrapped inside a TLS tunnel for extra security",trick:"P = Protected. EAP wearing armor — a TLS tunnel around it"},
+{cat:0,catName:"Auth & Identity",acr:"PIV",full:"Personal Identity Verification",def:"Government smart card standard for strong authentication",trick:"PIV = Proves I'm Verified — government ID card system"},
+{cat:0,catName:"Auth & Identity",acr:"RADIUS",full:"Remote Authentication Dial-In User Service",def:"Centralizes authentication for network access (Wi-Fi, VPN, etc.)",trick:"RADIUS = The bouncer HQ that all the door bouncers call"},
+{cat:0,catName:"Auth & Identity",acr:"RBAC",full:"Role-Based Access Control / Rule-Based Access Control",def:"CompTIA lists two RBAC meanings: access from job roles, or access from system rules like time, location, or conditions.",trick:"RBAC can be Role or Rule — job title versus policy logic"},
+{cat:0,catName:"Auth & Identity",acr:"SAE",full:"Simultaneous Authentication of Equals",def:"WPA3 handshake replacing the weak WPA2 4-way handshake",trick:"SAE = Shake And Establish — WPA3's secure handshake"},
+{cat:0,catName:"Auth & Identity",acr:"SAML",full:"Security Assertions Markup Language",def:"XML-based standard for SSO — passes identity info between systems",trick:"SAML = SAy who I aM Later — deferred identity assertion"},
+{cat:0,catName:"Auth & Identity",acr:"SSO",full:"Single Sign-On",def:"One login grants access to multiple systems automatically",trick:"SSO = Sign in Once, go everywhere"},
+{cat:0,catName:"Auth & Identity",acr:"TACACS+",full:"Terminal Access Controller Access Control System Plus",def:"Cisco's alternative to RADIUS — separates auth, authz, and accounting",trick:"TACACS+ = Cisco's more detailed answer to RADIUS"},
+{cat:0,catName:"Auth & Identity",acr:"TGT",full:"Ticket Granting Ticket",def:"Kerberos token that lets you request access to services",trick:"TGT = Ticket to Get more Tickets — your Kerberos master pass"},
+{cat:0,catName:"Auth & Identity",acr:"TOTP",full:"Time-based One-time Password",def:"OTP that expires based on time — changes every 30 seconds",trick:"T = Time. Changes with the CLOCK — like Google Authenticator"},
+{cat:1,catName:"Threats & Attacks",acr:"AIS",full:"Automated Indicator Sharing",def:"DHS system for automatically sharing cyber threat indicators between organizations",trick:"AIS = Auto-sharing Intel System — government cyber neighborhood watch"},
+{cat:1,catName:"Threats & Attacks",acr:"APT",full:"Advanced Persistent Threat",def:"Long-term stealthy attacker (usually nation-state) lurking inside a network",trick:"APT = Always Patiently There — they don't rush, they STAY"},
+{cat:1,catName:"Threats & Attacks",acr:"ATT&CK",full:"Adversarial Tactics, Techniques, and Common Knowledge",def:"MITRE's framework documenting how attackers actually operate",trick:"ATT&CK = The attacker's playbook — MITRE wrote down everything bad guys do"},
+{cat:1,catName:"Threats & Attacks",acr:"CSRF",full:"Cross-site Request Forgery",def:"Tricks a logged-in user into making unauthorized requests on another site",trick:"CSRF = Clever Site Request Fraud — forging actions on your behalf"},
+{cat:1,catName:"Threats & Attacks",acr:"DDoS",full:"Distributed Denial of Service",def:"Many machines flood a target to take it offline",trick:"Distributed = MANY attackers. Like thousands calling 911 at once"},
+{cat:1,catName:"Threats & Attacks",acr:"DoS",full:"Denial of Service",def:"Single source overwhelms a system to make it unavailable",trick:"DoS = Denying Others Service — one attacker, one victim"},
+{cat:1,catName:"Threats & Attacks",acr:"IoC",full:"Indicators of Compromise",def:"Evidence that a system has been breached — weird logins, strange files, etc.",trick:"IoC = Is our system Compromised? — clues left behind by a hacker"},
+{cat:1,catName:"Threats & Attacks",acr:"OSINT",full:"Open-Source Intelligence",def:"Gathering information from publicly available sources",trick:"OSINT = Obviously Searchable Info — Google is an OSINT tool"},
+{cat:1,catName:"Threats & Attacks",acr:"PUP",full:"Potentially Unwanted Program",def:"Software you didn't intentionally install — adware, toolbars, etc.",trick:"PUP = annoying program that snuck in like a stray puppy"},
+{cat:1,catName:"Threats & Attacks",acr:"RAT",full:"Remote Access Trojan",def:"Malware giving an attacker remote control of your system",trick:"RAT = sneaky pest that hides and lets others control your house"},
+{cat:1,catName:"Threats & Attacks",acr:"RFID",full:"Radio Frequency Identification",def:"Wireless tag technology that can be cloned in proximity attacks",trick:"RFID = Radio Finds ID — scan your badge without touching it"},
+{cat:1,catName:"Threats & Attacks",acr:"SPIM",full:"Spam over Instant Messaging",def:"Spam delivered through IM platforms instead of email",trick:"SPIM = SPAM via IM — same junk, different channel"},
+{cat:1,catName:"Threats & Attacks",acr:"SQLi",full:"SQL Injection",def:"Inserting malicious SQL code into a database query to steal or modify data",trick:"SQLi = Sneaking bad SQL code into the back door of a database"},
+{cat:1,catName:"Threats & Attacks",acr:"STIX",full:"Structured Threat Information eXchange",def:"Standard format for sharing cyberthreat intelligence data",trick:"STIX = the container you put threat info in to share it"},
+{cat:1,catName:"Threats & Attacks",acr:"TAXII",full:"Trusted Automated eXchange of Indicator Information",def:"Protocol that CARRIES STIX threat data between organizations",trick:"STIX = the package. TAXII = the delivery truck"},
+{cat:1,catName:"Threats & Attacks",acr:"TTP",full:"Tactics, Techniques, and Procedures",def:"The specific methods and behaviors used by an attacker",trick:"TTP = The Threat Playbook — HOW hackers operate"},
+{cat:1,catName:"Threats & Attacks",acr:"XSS",full:"Cross-site Scripting",def:"Injecting malicious scripts into web pages viewed by other users",trick:"XSS = eXtra Sneaky Script — your browser runs the attacker's code"},
+{cat:2,catName:"Cryptography",acr:"AES",full:"Advanced Encryption Standard",def:"Gold standard symmetric encryption algorithm (128/192/256-bit keys)",trick:"AES = Actually Excellent Security — current gold standard"},
+{cat:2,catName:"Cryptography",acr:"AES-256",full:"Advanced Encryption Standard 256-bit",def:"AES using a 256-bit key — strongest and most common variant",trick:"AES-256 = AES with max key size — virtually unbreakable today"},
+{cat:2,catName:"Cryptography",acr:"AH",full:"Authentication Header",def:"IPSec component providing integrity and authentication but NOT encryption",trick:"AH = Authentication Header — proves it's real but doesn't hide it"},
+{cat:2,catName:"Cryptography",acr:"CA",full:"Certificate Authority",def:"Trusted organization that issues and signs digital certificates",trick:"CA = Certified Authority — the DMV of the internet"},
+{cat:2,catName:"Cryptography",acr:"CBC",full:"Cipher Block Chaining",def:"Block cipher mode where each block is XORed with the previous ciphertext block",trick:"CBC = Chained Blocks — each block depends on the one before it"},
+{cat:2,catName:"Cryptography",acr:"CCMP",full:"Counter Mode/CBC-MAC Protocol",def:"WPA2 encryption protocol — replaced the weak TKIP",trick:"CCMP = the strong encryption inside WPA2"},
+{cat:2,catName:"Cryptography",acr:"CFB",full:"Cipher Feedback",def:"Block cipher mode that turns a block cipher into a stream cipher",trick:"CFB = Cipher Feeds Back into itself — stream cipher from a block cipher"},
+{cat:2,catName:"Cryptography",acr:"CRL",full:"Certificate Revocation List",def:"List of certificates that have been revoked before expiration",trick:"CRL = Cancelled Registrations List — certs kicked out of the club"},
+{cat:2,catName:"Cryptography",acr:"CSR",full:"Certificate Signing Request",def:"Request you send to a CA asking them to create your certificate",trick:"CSR = Can Someone Ratify? — you ask the CA to stamp your cert"},
+{cat:2,catName:"Cryptography",acr:"CTM",full:"Counter Mode",def:"Block cipher mode using an incrementing counter — parallelizable and fast",trick:"CTM = Counts up to encrypt each block — fast and efficient"},
+{cat:2,catName:"Cryptography",acr:"DES",full:"Digital Encryption Standard",def:"Old symmetric encryption with 56-bit key — completely BROKEN now",trick:"DES = Dead Encryption Standard — don't use it, it's cracked"},
+{cat:2,catName:"Cryptography",acr:"DHE",full:"Diffie-Hellman Ephemeral",def:"Key exchange using temporary keys — provides perfect forward secrecy",trick:"DHE = Diffie-Hellman with Ephemeral (temporary) keys — forward secrecy"},
+{cat:2,catName:"Cryptography",acr:"DKIM",full:"DomainKeys Identified Mail",def:"Adds a cryptographic signature to emails proving sender authenticity",trick:"DKIM = Digital Keys Identify Mail — email's wax seal"},
+{cat:2,catName:"Cryptography",acr:"DSA",full:"Digital Signature Algorithm",def:"Algorithm used to create digital signatures — for signing, not encrypting",trick:"DSA = Digital Signing Algorithm — signs but doesn't encrypt"},
+{cat:2,catName:"Cryptography",acr:"ECB",full:"Electronic Code Book",def:"Simplest block cipher mode — same input always produces same output (WEAK)",trick:"ECB = Embarrassingly Consistent Blocks — identical input = identical output, avoid it"},
+{cat:2,catName:"Cryptography",acr:"ECC",full:"Elliptic Curve Cryptography",def:"Asymmetric crypto using elliptic curves — same security with smaller keys",trick:"ECC = Efficient Crypto Choice — small keys, big security"},
+{cat:2,catName:"Cryptography",acr:"ECDHE",full:"Elliptic Curve Diffie-Hellman Ephemeral",def:"Key exchange using ECC with temporary keys for forward secrecy",trick:"ECDHE = ECC + DHE combined — best of both worlds for key exchange"},
+{cat:2,catName:"Cryptography",acr:"ECDSA",full:"Elliptic Curve Digital Signature Algorithm",def:"Digital signatures using elliptic curve math — smaller and faster than RSA",trick:"ECDSA = ECC version of DSA — smaller signatures, same security"},
+{cat:2,catName:"Cryptography",acr:"EFS",full:"Encrypted File System",def:"Windows feature for encrypting individual files and folders",trick:"EFS = Encrypted Files System — Windows locks individual files"},
+{cat:2,catName:"Cryptography",acr:"ESP",full:"Encapsulated Security Payload",def:"IPSec component providing encryption, integrity, and authentication",trick:"ESP = Encrypts, Secures Payload — the part of IPSec that hides data"},
+{cat:2,catName:"Cryptography",acr:"FDE",full:"Full Disk Encryption",def:"Encrypts the entire hard drive — everything is protected at rest",trick:"FDE = Full Drive Encrypted — top to bottom, nothing readable"},
+{cat:2,catName:"Cryptography",acr:"GCM",full:"Galois Counter Mode",def:"AES mode providing both encryption AND authentication simultaneously",trick:"GCM = Guards and Checks Messages — encrypts AND authenticates at once"},
+{cat:2,catName:"Cryptography",acr:"GPG",full:"Gnu Privacy Guard",def:"Open-source implementation of PGP for email encryption and signing",trick:"GPG = GNU's Pretty Good — free open-source version of PGP"},
+{cat:2,catName:"Cryptography",acr:"HMAC",full:"Hashed Message Authentication Code",def:"Hash combined with a secret key — proves both integrity AND authenticity",trick:"HMAC = Hash + a secret key. The hash has a password"},
+{cat:2,catName:"Cryptography",acr:"HSM",full:"Hardware Security Module",def:"Physical device dedicated to generating and protecting cryptographic keys",trick:"HSM = Highly Secure Machine — the vault for your crypto keys"},
+{cat:2,catName:"Cryptography",acr:"IDEA",full:"International Data Encryption Algorithm",def:"Symmetric block cipher using 128-bit keys — used in older PGP versions",trick:"IDEA = old encryption algorithm — predecessor to AES era"},
+{cat:2,catName:"Cryptography",acr:"IV",full:"Initialization Vector",def:"Random value added to encryption ensuring identical inputs produce different outputs",trick:"IV = Inject Variation — makes every encryption unique"},
+{cat:2,catName:"Cryptography",acr:"KEK",full:"Key Encryption Key",def:"A key used to encrypt other keys — protects keys at rest",trick:"KEK = Key that Encrypts Keys — the master key for your keys"},
+{cat:2,catName:"Cryptography",acr:"MD5",full:"Message Digest 5",def:"Old hashing algorithm producing 128-bit hash — BROKEN by collision attacks",trick:"MD5 = Mostly Dead 5 — don't use it, it's been cracked"},
+{cat:2,catName:"Cryptography",acr:"OCSP",full:"Online Certificate Status Protocol",def:"Real-time protocol to check if a specific certificate is still valid",trick:"OCSP = On-Call Cert Status Police — instant cert validity check"},
+{cat:2,catName:"Cryptography",acr:"P12",full:"PKCS #12",def:"File format for storing a certificate AND its private key together (.pfx/.p12)",trick:"P12 = Personal certificate bundle — cert + private key in one file"},
+{cat:2,catName:"Cryptography",acr:"PBKDF2",full:"Password-Based Key Derivation Function 2",def:"Algorithm that stretches a weak password into a strong cryptographic key",trick:"PBKDF2 = Please Beef up Key Derivation — makes weak passwords stronger"},
+{cat:2,catName:"Cryptography",acr:"PEM",full:"Privacy Enhanced Mail",def:"Base64 encoded certificate format — the common .pem/.crt file format",trick:"PEM = the text format for certificates — starts with -----BEGIN-----"},
+{cat:2,catName:"Cryptography",acr:"PFS",full:"Perfect Forward Secrecy",def:"Temporary session keys keep past sessions safe even if main key is compromised",trick:"PFS = Protecting Former Secrets — what's done stays done, can't go back"},
+{cat:2,catName:"Cryptography",acr:"PGP",full:"Pretty Good Privacy",def:"Email encryption and signing standard — very widely used",trick:"PGP = Pretty Great Privacy — actually excellent, not just pretty good"},
+{cat:2,catName:"Cryptography",acr:"PKCS",full:"Public Key Cryptography Standards",def:"Set of standards from RSA Security defining formats for public key crypto",trick:"PKCS = the rulebook for public key formats"},
+{cat:2,catName:"Cryptography",acr:"PKI",full:"Public Key Infrastructure",def:"The system of certificates, CAs, and keys enabling secure communication",trick:"PKI = Public Key Island — the whole ecosystem around public key crypto"},
+{cat:2,catName:"Cryptography",acr:"RC4",full:"Rivest Cipher version 4",def:"Old stream cipher used in WEP and SSL — now BROKEN",trick:"RC4 = Really Cracked 4 — completely broken, never use it"},
+{cat:2,catName:"Cryptography",acr:"RIPEMD",full:"RACE Integrity Primitives Evaluation Message Digest",def:"Family of hash functions — alternative to SHA, used in Bitcoin",trick:"RIPEMD = an alternative hash family — Bitcoin uses RIPEMD-160"},
+{cat:2,catName:"Cryptography",acr:"RSA",full:"Rivest, Shamir, and Adleman",def:"Most widely used asymmetric encryption algorithm",trick:"RSA = the three inventors' names — grandfather of public key crypto"},
+{cat:2,catName:"Cryptography",acr:"S/MIME",full:"Secure/Multipurpose Internet Mail Extensions",def:"Standard for encrypting and digitally signing email messages",trick:"S/MIME = Secure Mail — encrypts AND signs your email"},
+{cat:2,catName:"Cryptography",acr:"RA",full:"Registration Authority / Recovery Agent",def:"CompTIA lists two RA meanings: the CA front desk that verifies certificate requests, and an agent authorized to recover encrypted data or keys.",trick:"RA can Register certificates or Recover access"},
+{cat:3,catName:"Networking",acr:"SAN",full:"Storage Area Network / Subject Alternative Name",def:"CompTIA lists two SAN meanings: a high-speed storage network, and certificate identities that let one certificate cover multiple hostnames.",trick:"SAN can mean Storage network or Subject Alt Names on a cert"},
+{cat:2,catName:"Cryptography",acr:"SCEP",full:"Simple Certificate Enrollment Protocol",def:"Protocol for automatically requesting certificates from a CA",trick:"SCEP = Simple Cert Enrollment Process — auto cert requests"},
+{cat:2,catName:"Cryptography",acr:"SED",full:"Self-Encrypting Drive",def:"Hard drive that automatically encrypts all data written to it",trick:"SED = Secretly Encrypts Data — no software needed, does it itself"},
+{cat:2,catName:"Cryptography",acr:"SHA",full:"Secure Hashing Algorithm",def:"Creates a fixed-size fingerprint of data to verify integrity",trick:"SHA = Security Hashing Algorithm — digital fingerprint machine"},
+{cat:2,catName:"Cryptography",acr:"TKIP",full:"Temporal Key Integrity Protocol",def:"WPA encryption protocol — replaced WEP but weaker than CCMP",trick:"TKIP = Temporary Key Integrity Protocol — better than WEP, worse than CCMP"},
+{cat:2,catName:"Cryptography",acr:"TLS",full:"Transport Layer Security",def:"Protocol that encrypts data in transit — what HTTPS uses",trick:"TLS = Traffic Lock System — padlocks your internet traffic"},
+{cat:2,catName:"Cryptography",acr:"TPM",full:"Trusted Platform Module",def:"Chip built into motherboard for hardware-based crypto and secure boot",trick:"TPM = Trusted Platform Microchip — your computer's built-in crypto chip"},
+{cat:2,catName:"Cryptography",acr:"WTLS",full:"Wireless TLS",def:"TLS adapted for wireless and mobile network communication",trick:"WTLS = Wireless TLS — TLS for older wireless/WAP devices"},
+{cat:3,catName:"Networking",acr:"ARP",full:"Address Resolution Protocol",def:"Finds the MAC address associated with an IP address on a local network",trick:"ARP = Address Resolution Police — finds out who has that IP"},
+{cat:3,catName:"Networking",acr:"BGP",full:"Border Gateway Protocol",def:"Routing protocol that connects different ISPs on the internet",trick:"BGP = Big Gateway Protocol — how ISPs talk to each other"},
+{cat:3,catName:"Networking",acr:"BPDU",full:"Bridge Protocol Data Unit",def:"Messages used by Spanning Tree Protocol to prevent network loops",trick:"BPDU = Bridge Protocol messaging — keeps loops out of switched networks"},
+{cat:3,catName:"Networking",acr:"DHCP",full:"Dynamic Host Configuration Protocol",def:"Automatically assigns IP addresses to devices on a network",trick:"DHCP = Delivers Hand-Crafted IP Parameters — auto IP assignment"},
+{cat:3,catName:"Networking",acr:"DNS",full:"Domain Name System",def:"Translates human-readable domain names to IP addresses",trick:"DNS = Domains to Numbers System — the internet's phone book"},
+{cat:3,catName:"Networking",acr:"DNAT",full:"Destination Network Address Translation",def:"Redirects incoming traffic to a different internal host or port",trick:"DNAT = Destination NAT — changes where incoming packets go"},
+{cat:3,catName:"Networking",acr:"DSL",full:"Digital Subscriber Line",def:"Internet connection over telephone lines — asymmetric upload/download speeds",trick:"DSL = Digital Subscriber Line — internet through the phone line"},
+{cat:3,catName:"Networking",acr:"FTP",full:"File Transfer Protocol",def:"Transfers files over a network — completely UNENCRYPTED",trick:"FTP = Files Traveling Plaintext — never use for sensitive files"},
+{cat:3,catName:"Networking",acr:"FTPS",full:"Secured File Transfer Protocol",def:"FTP with SSL/TLS encryption — NOT the same as SFTP",trick:"FTPS = FTP + SSL armor — different from SFTP (which uses SSH)"},
+{cat:3,catName:"Networking",acr:"GRE",full:"Generic Routing Encapsulation",def:"Tunneling protocol that encapsulates packets inside IP packets",trick:"GRE = Generic Route Encapsulator — wraps packets inside packets"},
+{cat:3,catName:"Networking",acr:"HA",full:"High Availability",def:"System design ensuring minimal downtime through redundancy and failover",trick:"HA = Here Always — systems designed to never go down"},
+{cat:3,catName:"Networking",acr:"HTTP",full:"Hypertext Transfer Protocol",def:"Web browsing protocol — sends data in plaintext (not secure)",trick:"HTTP = Hackers Totally Prefer This — no encryption at all"},
+{cat:3,catName:"Networking",acr:"HTTPS",full:"Hypertext Transfer Protocol Secure",def:"HTTP wrapped in TLS encryption — secure web browsing",trick:"HTTPS = HTTP + TLS. The S = Safe. Look for the padlock"},
+{cat:3,catName:"Networking",acr:"ICMP",full:"Internet Control Message Protocol",def:"Used for diagnostics like ping and traceroute",trick:"ICMP = I Check My Path — ping and traceroute use this"},
+{cat:3,catName:"Networking",acr:"IKE",full:"Internet Key Exchange",def:"Protocol that negotiates and establishes IPSec security associations",trick:"IKE = Internet Key Exchanger — the negotiator before IPSec starts"},
+{cat:3,catName:"Networking",acr:"IM",full:"Instant Messaging",def:"Real-time text communication — can be a social engineering attack vector",trick:"IM = Instant Messaging — attackers use it for SPIM and phishing"},
+{cat:3,catName:"Networking",acr:"IMAP",full:"Internet Message Access Protocol",def:"Protocol for receiving email — keeps messages on the server",trick:"IMAP = I Map Access to email on server — reads mail remotely"},
+{cat:3,catName:"Networking",acr:"IP",full:"Internet Protocol",def:"The fundamental protocol for routing packets across networks",trick:"IP = Internet Protocol — the address system of the internet"},
+{cat:3,catName:"Networking",acr:"IPSec",full:"Internet Protocol Security",def:"Encrypts IP-layer traffic — the backbone of many VPNs",trick:"IPSec = IP Security wrapper — wraps your packets in armor"},
+{cat:3,catName:"Networking",acr:"IRC",full:"Internet Relay Chat",def:"Old real-time chat protocol — often used by botnets for C2 communication",trick:"IRC = old chat system, still used by malware for command and control"},
+{cat:3,catName:"Networking",acr:"ISP",full:"Internet Service Provider",def:"Company providing internet access — Comcast, AT&T, Verizon, etc.",trick:"ISP = Internet Service Provider — who you pay for internet"},
+{cat:3,catName:"Networking",acr:"L2TP",full:"Layer 2 Tunneling Protocol",def:"VPN tunneling protocol — often paired with IPSec for encryption",trick:"L2TP = digs the VPN tunnel, IPSec locks it"},
+{cat:3,catName:"Networking",acr:"LAN",full:"Local Area Network",def:"Network confined to a small area like an office or building",trick:"LAN = Local Area Network — your office or home network"},
+{cat:3,catName:"Networking",acr:"MAN",full:"Metropolitan Area Network",def:"Network covering a city or campus — larger than LAN, smaller than WAN",trick:"MAN = Metropolitan Area Network — city-wide network"},
+{cat:3,catName:"Networking",acr:"MPLS",full:"Multi-Protocol Label Switching",def:"High-performance routing technique using labels instead of IP addresses",trick:"MPLS = Multi-Protocol Label Switching — express lane routing"},
+{cat:3,catName:"Networking",acr:"MTU",full:"Maximum Transmission Unit",def:"Largest packet size that can be sent over a network link",trick:"MTU = Maximum Transmission Unit — biggest packet allowed on the wire"},
+{cat:3,catName:"Networking",acr:"NAC",full:"Network Access Control",def:"Controls which devices are allowed to connect to the network",trick:"NAC = Network Admissions Committee — approves devices before they join"},
+{cat:3,catName:"Networking",acr:"NAT",full:"Network Address Translation",def:"Translates private IP addresses to public IPs for internet access",trick:"NAT = Numbering Address Translator — your router's IP translator"},
+{cat:3,catName:"Networking",acr:"NIDS",full:"Network-Based Intrusion Detection System",def:"IDS watching all network traffic — detects but does not block",trick:"N = Network. Watching ALL traffic across the wire — alerts only"},
+{cat:3,catName:"Networking",acr:"NIPS",full:"Network-Based Intrusion Prevention System",def:"IPS blocking threats at the network level",trick:"N = Network. Watching and BLOCKING threats on the wire"},
+{cat:3,catName:"Networking",acr:"NTP",full:"Network Time Protocol",def:"Synchronizes clocks across all network devices",trick:"NTP = Network Time Police — keeps everyone's clock in sync"},
+{cat:3,catName:"Networking",acr:"OSPF",full:"Open Shortest Path First",def:"Interior routing protocol finding the most efficient path",trick:"OSPF = Open Shortest Path First — GPS for your network traffic"},
+{cat:3,catName:"Networking",acr:"OT",full:"Operational Technology",def:"Hardware and software for monitoring and controlling physical industrial processes",trick:"OT = Operational Technology — the tech that runs real-world machinery"},
+{cat:3,catName:"Networking",acr:"OTA",full:"Over the Air",def:"Wireless transmission — especially firmware/software updates pushed wirelessly",trick:"OTA = Over The Air — wireless updates pushed to devices"},
+{cat:3,catName:"Networking",acr:"P2P",full:"Peer to Peer",def:"Direct connection between devices without a central server",trick:"P2P = Person to Person — direct sharing, no middleman"},
+{cat:3,catName:"Networking",acr:"PAC",full:"Proxy Auto Configuration",def:"File that tells browsers how to automatically find a proxy server",trick:"PAC = Proxy Auto Configuration — browser finds proxy automatically"},
+{cat:3,catName:"Networking",acr:"PAP",full:"Password Authentication Protocol",def:"Authentication protocol that sends passwords in PLAINTEXT — never use",trick:"PAP = Passwords Are Plaintext — completely insecure, don't use"},
+{cat:3,catName:"Networking",acr:"PAT",full:"Port Address Translation",def:"Many private IPs share one public IP using different port numbers",trick:"PAT = Port Address Translation — NAT on steroids using ports"},
+{cat:3,catName:"Networking",acr:"PBX",full:"Private Branch Exchange",def:"Internal phone system for an organization",trick:"PBX = Private phone Box — the company's own phone switch"},
+{cat:3,catName:"Networking",acr:"POP",full:"Post Office Protocol",def:"Protocol for downloading email from server — removes from server",trick:"POP = Post Office Protocol — downloads email, clears the mailbox"},
+{cat:3,catName:"Networking",acr:"POTS",full:"Plain Old Telephone Service",def:"Traditional analog telephone system",trick:"POTS = Plain Old Telephone System — your grandma's landline"},
+{cat:3,catName:"Networking",acr:"PPP",full:"Point-to-Point Protocol",def:"Data link protocol for direct connection between two nodes",trick:"PPP = Point-to-Point Protocol — direct link between two devices"},
+{cat:3,catName:"Networking",acr:"PPTP",full:"Point-to-Point Tunneling Protocol",def:"Old VPN protocol — now considered weak and broken",trick:"PPTP = Pretty Poor Tunneling Protocol — deprecated, don't use it"},
+{cat:3,catName:"Networking",acr:"RAS",full:"Remote Access Server",def:"Server that provides remote access to a network",trick:"RAS = Remote Access Server — the door to access the network remotely"},
+{cat:3,catName:"Networking",acr:"RDP",full:"Remote Desktop Protocol",def:"Microsoft protocol for graphical remote desktop access — Port 3389",trick:"RDP = Remote Desktop Portal — see and control Windows remotely. Port 3389"},
+{cat:3,catName:"Networking",acr:"RTBH",full:"Remotely Triggered Black Hole",def:"Routing technique that drops malicious traffic at the router level",trick:"RTBH = Remote Traffic Black Hole — traffic goes in, never comes out"},
+{cat:3,catName:"Networking",acr:"RTP",full:"Real-time Transport Protocol",def:"Protocol for delivering audio and video over IP networks",trick:"RTP = Real-Time Protocol — carries your voice in VoIP calls"},
+{cat:3,catName:"Networking",acr:"SASE",full:"Secure Access Service Edge",def:"Cloud-native security and networking combined at the network edge",trick:"SASE (say sassy) = Security AND networking in the cloud edge"},
+{cat:3,catName:"Networking",acr:"SD-WAN",full:"Software-Defined Wide Area Network",def:"Software controls the WAN — more flexible and cheaper than hardware WAN",trick:"SD-WAN = Software Drives the WAN — code runs the network"},
+{cat:3,catName:"Networking",acr:"SDN",full:"Software-Defined Networking",def:"Network controlled by software instead of individual hardware configurations",trick:"SDN = Software Drives the Network — one controller to rule them all"},
+{cat:3,catName:"Networking",acr:"SFTP",full:"Secured File Transfer Protocol",def:"File transfer over SSH — encrypted and authenticated",trick:"SFTP = FTP through an SSH tunnel. The S = Secure via SSH"},
+{cat:3,catName:"Networking",acr:"SMTP",full:"Simple Mail Transfer Protocol",def:"Protocol for SENDING email — port 25",trick:"SMTP = Sending Mail To People — outbound email only"},
+{cat:3,catName:"Networking",acr:"SMTPS",full:"Simple Mail Transfer Protocol Secure",def:"SMTP with TLS encryption added — port 465 or 587",trick:"SMTPS = SMTP + encryption — secure email sending"},
+{cat:3,catName:"Networking",acr:"SNMP",full:"Simple Network Management Protocol",def:"Monitors and manages network devices like routers and switches",trick:"SNMP = Snooping Network Management Protocol — checks on your devices"},
+{cat:3,catName:"Networking",acr:"SRTP",full:"Secure Real-Time Protocol",def:"Encrypted version of RTP — protects voice and video calls",trick:"SRTP = Secure RTP — your VoIP calls with encryption"},
+{cat:3,catName:"Networking",acr:"SSH",full:"Secure Shell",def:"Encrypted protocol for remote command-line access to systems — Port 22",trick:"SSH = Secure Shell — encrypted terminal. Port 22"},
+{cat:3,catName:"Networking",acr:"SSL",full:"Secure Sockets Layer",def:"Older predecessor to TLS — now deprecated and broken",trick:"SSL = Seriously, Stop using this Layer — use TLS instead"},
+{cat:3,catName:"Networking",acr:"TCP/IP",full:"Transmission Control Protocol/Internet Protocol",def:"The foundational protocol suite of the internet",trick:"TCP/IP = The internet's DNA — everything runs on this"},
+{cat:3,catName:"Networking",acr:"TSIG",full:"Transaction Signature",def:"Cryptographic authentication for DNS messages — prevents DNS spoofing",trick:"TSIG = Transaction SIGnature — proves DNS responses are legit"},
+{cat:3,catName:"Networking",acr:"UDP",full:"User Datagram Protocol",def:"Fast connectionless protocol — no guarantee of delivery",trick:"UDP = Unreliable but Dang fast Protocol — no handshake, just send it"},
+{cat:3,catName:"Networking",acr:"URI",full:"Uniform Resource Identifier",def:"Broader identifier for any resource on the internet",trick:"URI = Uniform Resource Identifier — more general than URL"},
+{cat:3,catName:"Networking",acr:"URL",full:"Universal Resource Locator",def:"The specific web address you type in your browser",trick:"URL = Unique Resource Locator — the web address you type"},
+{cat:3,catName:"Networking",acr:"UTP",full:"Unshielded Twisted Pair",def:"Common network cable without shielding — most common Ethernet cable",trick:"UTP = Unprotected Twisted Pair — standard Ethernet cable"},
+{cat:3,catName:"Networking",acr:"VLAN",full:"Virtual Local Area Network",def:"Logical network segment isolating traffic without physical separation",trick:"VLAN = Virtual Lane — separate lanes on the same highway"},
+{cat:3,catName:"Networking",acr:"VLSM",full:"Variable Length Subnet Masking",def:"Allows different size subnets within the same network — efficient IP use",trick:"VLSM = Variable Length Subnet Masking — cut subnets to exact sizes needed"},
+{cat:3,catName:"Networking",acr:"VoIP",full:"Voice over IP",def:"Phone calls transmitted over internet/IP networks",trick:"VoIP = Voice over Internet Protocol — phone on the internet"},
+{cat:3,catName:"Networking",acr:"VPN",full:"Virtual Private Network",def:"Encrypted tunnel through the public internet for secure remote access",trick:"VPN = Very Private Network — private highway through the public internet"},
+{cat:4,catName:"Security Tools",acr:"AV",full:"Antivirus",def:"Software that detects, quarantines, and removes malware",trick:"AV = Anti-Virus — the first line of defense against malware"},
+{cat:4,catName:"Security Tools",acr:"CASB",full:"Cloud Access Security Broker",def:"Security middleman between your users and cloud services",trick:"CASB = Cloud App Security Bodyguard — security cop for cloud apps"},
+{cat:4,catName:"Security Tools",acr:"DLP",full:"Data Loss Prevention",def:"Prevents sensitive data from leaving the organization",trick:"DLP = Don't Let it go, Please — keeps secrets inside"},
+{cat:4,catName:"Security Tools",acr:"EDR",full:"Endpoint Detection and Response",def:"Advanced endpoint security that detects, investigates, and responds to threats",trick:"EDR = Every Device Responded to — eyes on every endpoint"},
+{cat:4,catName:"Security Tools",acr:"FIM",full:"File Integrity Management",def:"Monitors files for unauthorized changes by comparing cryptographic hashes",trick:"FIM = Files Integrity Monitor — fingerprints your files, alerts on change"},
+{cat:4,catName:"Security Tools",acr:"HIDS",full:"Host-Based Intrusion Detection System",def:"IDS running ON a single device — monitors that device's activity only",trick:"H = Host. Watching ONE computer from inside — alerts only"},
+{cat:4,catName:"Security Tools",acr:"HIPS",full:"Host-Based Intrusion Prevention System",def:"IPS running ON a single device — detects AND blocks on that host",trick:"H = Host. Blocking threats ON a single computer"},
+{cat:4,catName:"Security Tools",acr:"IDS",full:"Intrusion Detection System",def:"Monitors traffic and ALERTS on suspicious activity — does NOT block",trick:"IDS = It Detects but Stops nothing — alarm only, no action"},
+{cat:4,catName:"Security Tools",acr:"IPS",full:"Intrusion Prevention System",def:"Monitors traffic and ACTIVELY BLOCKS suspicious activity",trick:"IPS = It Prevents and Stops — alarm + action combined"},
+{cat:4,catName:"Security Tools",acr:"MDM",full:"Mobile Device Management",def:"System for managing, monitoring, and securing mobile devices",trick:"MDM = Managing Devices Mobile — IT's remote control for phones"},
+{cat:4,catName:"Security Tools",acr:"NGFW",full:"Next-Generation Firewall",def:"Advanced firewall with deep packet inspection, app awareness, user identity",trick:"NGFW = regular firewall with a PhD — it understands applications"},
+{cat:4,catName:"Security Tools",acr:"PCAP",full:"Packet Capture",def:"Capturing raw network traffic for analysis — Wireshark uses this",trick:"PCAP = Packets CAPtured — recording all network traffic"},
+{cat:4,catName:"Security Tools",acr:"SCAP",full:"Security Content Automation Protocol",def:"Automates vulnerability checking and security compliance verification",trick:"SCAP = Scanning Configs Automatically Please — auto security checks"},
+{cat:4,catName:"Security Tools",acr:"SIEM",full:"Security Information and Event Management",def:"Collects, correlates, and analyzes logs from across the organization",trick:"SIEM = Security Is Everything Monitored — the command center"},
+{cat:4,catName:"Security Tools",acr:"SOAR",full:"Security Orchestration, Automation, and Response",def:"Automates incident response workflows and coordinates security tools",trick:"SOAR = SIEM's smarter sibling that can actually FIX things automatically"},
+{cat:4,catName:"Security Tools",acr:"SWG",full:"Secure Web Gateway",def:"Filters outbound web traffic to block malicious sites and content",trick:"SWG = Security Web Guard — bouncer for outbound web traffic"},
+{cat:4,catName:"Security Tools",acr:"UTM",full:"Unified Threat Management",def:"All-in-one security appliance combining firewall, IPS, antivirus, and more",trick:"UTM = Ultimate Threat Machine — Swiss Army knife of security"},
+{cat:4,catName:"Security Tools",acr:"WAF",full:"Web Application Firewall",def:"Filters HTTP/HTTPS traffic to web apps — stops SQLi, XSS, etc.",trick:"WAF = Web App Filter — bodyguard specifically for web applications"},
+{cat:4,catName:"Security Tools",acr:"XDR",full:"Extended Detection and Response",def:"EDR expanded across network, cloud, email — everything unified in one platform",trick:"XDR = EDR on steroids. X = eXtended to EVERYTHING"},
+{cat:5,catName:"Cloud & Virt",acr:"API",full:"Application Programming Interface",def:"How software applications communicate and share data with each other",trick:"API = App Passes Instructions — the waiter between apps"},
+{cat:5,catName:"Cloud & Virt",acr:"FPGA",full:"Field Programmable Gate Array",def:"Reprogrammable hardware chip — can be reconfigured after manufacturing",trick:"FPGA = Flexible Programmable Giant Array — hardware you can reprogram"},
+{cat:5,catName:"Cloud & Virt",acr:"IaaS",full:"Infrastructure as a Service",def:"Rent servers, storage, and networking in the cloud (AWS EC2, Azure VMs)",trick:"IaaS = I get actual Servers — raw computing resources"},
+{cat:5,catName:"Cloud & Virt",acr:"IaC",full:"Infrastructure as Code",def:"Define and manage infrastructure using code files instead of manual config",trick:"IaC = Infrastructure = Code — build servers by writing code"},
+{cat:5,catName:"Cloud & Virt",acr:"ICS",full:"Industrial Control Systems",def:"Systems that control industrial and critical infrastructure processes",trick:"ICS = I Control Stuff — physical world control systems"},
+{cat:5,catName:"Cloud & Virt",acr:"MaaS",full:"Monitoring as a Service",def:"Cloud-based monitoring for systems, applications, and infrastructure",trick:"MaaS = Monitoring as a Service — outsourced eyes on your systems"},
+{cat:5,catName:"Cloud & Virt",acr:"OVAL",full:"Open Vulnerability Assessment Language",def:"XML-based language for describing system vulnerabilities and configurations",trick:"OVAL = Open Vulnerability Assessment Language — standardized vuln descriptions"},
+{cat:5,catName:"Cloud & Virt",acr:"PaaS",full:"Platform as a Service",def:"Rent a development platform — you build the app, cloud manages the rest",trick:"PaaS = Platform And Stuff — dev environment in the cloud"},
+{cat:5,catName:"Cloud & Virt",acr:"RTOS",full:"Real-Time Operating System",def:"OS that guarantees responses within strict time constraints — used in IoT/ICS",trick:"RTOS = Responds Totally On Schedule — timing is everything"},
+{cat:5,catName:"Cloud & Virt",acr:"SaaS",full:"Software as a Service",def:"Use software over the internet — no install needed (Gmail, Office 365)",trick:"SaaS = Software As A Subscription — just log in and use it"},
+{cat:5,catName:"Cloud & Virt",acr:"SCADA",full:"Supervisory Control and Data Acquisition",def:"Industrial control system managing physical processes (power, water, factories)",trick:"SCADA = Supervising Critical And Dangerous Assets — runs real-world infrastructure"},
+{cat:5,catName:"Cloud & Virt",acr:"SDK",full:"Software Development Kit",def:"Collection of tools and libraries for building software",trick:"SDK = Starter Developer Kit — toolbox for developers"},
+{cat:5,catName:"Cloud & Virt",acr:"SoC",full:"System on Chip",def:"All computer components (CPU, GPU, RAM) integrated onto one chip",trick:"SoC = Squeezed on Chip — entire computer on one tiny chip"},
+{cat:5,catName:"Cloud & Virt",acr:"VDE",full:"Virtual Desktop Environment",def:"Virtualized desktop accessed remotely — desktop runs on a server",trick:"VDE = Virtual Desktop Environment — your desktop lives in the cloud"},
+{cat:5,catName:"Cloud & Virt",acr:"VDI",full:"Virtual Desktop Infrastructure",def:"Centralized system delivering virtual desktops to thin clients",trick:"VDI = Virtual Desktops Issued centrally — IT manages all desktops from one place"},
+{cat:5,catName:"Cloud & Virt",acr:"VM",full:"Virtual Machine",def:"Software-simulated computer running inside physical hardware",trick:"VM = Virtual Machine — a computer inside a computer"},
+{cat:5,catName:"Cloud & Virt",acr:"VPC",full:"Virtual Private Cloud",def:"Isolated private network section within a public cloud provider",trick:"VPC = Virtual Private Compound — your private space inside AWS/Azure"},
+{cat:6,catName:"Risk & BCP",acr:"ALE",full:"Annualized Loss Expectancy",def:"Expected total yearly loss from a threat = SLE × ARO",trick:"ALE = Annual Loss Estimate = SLE × ARO. Yearly damage bill"},
+{cat:6,catName:"Risk & BCP",acr:"ARO",full:"Annualized Rate of Occurrence",def:"How many times per year a specific threat is expected to occur",trick:"ARO = Annual Repeat Occurrences — how often does trouble come?"},
+{cat:6,catName:"Risk & BCP",acr:"BCP",full:"Business Continuity Planning",def:"Plan to keep the business operating during and after a disaster",trick:"BCP = Business Can't Pause — the survival plan"},
+{cat:6,catName:"Risk & BCP",acr:"BIA",full:"Business Impact Analysis",def:"Assesses which business functions are critical and the damage if disrupted",trick:"BIA = Business Impact Assessment — What hurts and how bad?"},
+{cat:6,catName:"Risk & BCP",acr:"BPA",full:"Business Partners Agreement",def:"Formal contract between business partners outlining responsibilities",trick:"BPA = Business Partners Agreement — sign BEFORE disaster strikes"},
+{cat:6,catName:"Risk & BCP",acr:"CAR",full:"Corrective Action Report",def:"Document describing problems found and the corrective actions taken",trick:"CAR = Corrective Action Report — here's what went wrong and how we fixed it"},
+{cat:6,catName:"Risk & BCP",acr:"COOP",full:"Continuity of Operations Plan",def:"Keeps critical government or org functions running during emergencies",trick:"COOP = Keep Operations Cooperating — mission-critical functions never stop"},
+{cat:6,catName:"Risk & BCP",acr:"CP",full:"Contingency Planning",def:"Planning for unexpected events and how to respond to them",trick:"CP = Contingency Planning — planning for the 'what ifs'"},
+{cat:6,catName:"Risk & BCP",acr:"DRP",full:"Disaster Recovery Plan",def:"Technical plan for restoring IT systems after a disaster",trick:"DRP = Disaster Reboot Plan — how we restore tech after catastrophe"},
+{cat:6,catName:"Risk & BCP",acr:"MTBF",full:"Mean Time Between Failures",def:"Average time between system failures — measures reliability",trick:"MTBF = Mean Time Before it Falls — how long til it breaks again"},
+{cat:6,catName:"Risk & BCP",acr:"MTTF",full:"Mean Time to Failure",def:"Expected lifetime of a device before its first failure",trick:"MTTF = Mean Time To Fail — the device's expected lifespan"},
+{cat:6,catName:"Risk & BCP",acr:"MTTR",full:"Mean Time to Recover",def:"Average time required to restore a failed system to operation",trick:"MTTR = Mean Time To Repair — average fix time after failure"},
+{cat:6,catName:"Risk & BCP",acr:"MOA",full:"Memorandum of Agreement",def:"Formal agreement between parties — more binding than MOU",trick:"MOA = More Official Agreement — more binding than MOU"},
+{cat:6,catName:"Risk & BCP",acr:"MOU",full:"Memorandum of Understanding",def:"Less formal understanding between parties — not legally binding",trick:"MOU = Mostly Unofficial Understanding — the gentleman's handshake"},
+{cat:6,catName:"Risk & BCP",acr:"MSA",full:"Master Service Agreement",def:"Umbrella contract covering all future work between two parties",trick:"MSA = Master of all contracts — one contract to rule them all"},
+{cat:6,catName:"Risk & BCP",acr:"NDA",full:"Non-Disclosure Agreement",def:"Legal contract requiring parties to keep information confidential",trick:"NDA = No Disclosing Allowed — keep your mouth shut, legally"},
+{cat:6,catName:"Risk & BCP",acr:"ROI",full:"Return on Investment",def:"Measuring value gained versus cost spent — justifies security spending",trick:"ROI = Results Of Investment — is the money spent worth it?"},
+{cat:6,catName:"Risk & BCP",acr:"RPO",full:"Recovery Point Objective",def:"Maximum acceptable data loss measured in time — how far back can backups go?",trick:"RPO = Recovery Point Objective — how much DATA can we afford to lose?"},
+{cat:6,catName:"Risk & BCP",acr:"RTO",full:"Recovery Time Objective",def:"Maximum acceptable time to restore systems after a disaster",trick:"RTO = Return To Operation — How FAST must we be back online?"},
+{cat:6,catName:"Risk & BCP",acr:"SLA",full:"Service-Level Agreement",def:"Contract defining the expected level of service from a provider",trick:"SLA = Service Level Agreement — what they PROMISE to deliver"},
+{cat:6,catName:"Risk & BCP",acr:"SLE",full:"Single Loss Expectancy",def:"Dollar amount lost in ONE incident = Asset Value × Exposure Factor",trick:"SLE = Single Loss Expected — the cost of ONE bad day"},
+{cat:6,catName:"Risk & BCP",acr:"SOW",full:"Statement of Work",def:"Document defining specific tasks, deliverables, and timelines for a project",trick:"SOW = Specifically, Our Work — here's exactly what we'll do"},
+{cat:7,catName:"Access & Wireless",acr:"ACL",full:"Access Control List",def:"List of rules defining what traffic or users are allowed or denied",trick:"ACL = Allow/Deny Check List — the bouncer's list"},
+{cat:7,catName:"Access & Wireless",acr:"AP",full:"Access Point",def:"Device creating a wireless network connection point",trick:"AP = Access Point — the Wi-Fi box on the ceiling"},
+{cat:7,catName:"Access & Wireless",acr:"BYOD",full:"Bring Your Own Device",def:"Policy allowing employees to use personal devices for work",trick:"BYOD = Bring Your Own Danger — security headache for IT"},
+{cat:7,catName:"Access & Wireless",acr:"COPE",full:"Corporate-Owned, Personally Enabled",def:"Company owns the device but employee can personalize it",trick:"COPE = Company phone, personal touch"},
+{cat:7,catName:"Access & Wireless",acr:"CYOD",full:"Choose Your Own Device",def:"Employee picks their device from a company-approved list",trick:"CYOD = Choose Your Own Device — approved menu to pick from"},
+{cat:7,catName:"Access & Wireless",acr:"FACL",full:"File System Access Control List",def:"ACL applied specifically to file system objects — controls file permissions",trick:"FACL = File ACL — the access list for files and folders"},
+{cat:7,catName:"Access & Wireless",acr:"NFC",full:"Near Field Communication",def:"Very short-range wireless (tap to pay, access cards) — a few centimeters",trick:"NFC = Needs Finger Close — has to almost touch to work"},
+{cat:7,catName:"Access & Wireless",acr:"PSK",full:"Pre-Shared Key",def:"A shared password used for wireless or VPN authentication",trick:"PSK = Password Shared by Key — the Wi-Fi password everyone shares"},
+{cat:7,catName:"Access & Wireless",acr:"WAP",full:"Wireless Access Point",def:"Device that connects wireless devices to the wired network",trick:"WAP = the Wi-Fi box — Wireless Access Point"},
+{cat:7,catName:"Access & Wireless",acr:"WEP",full:"Wired Equivalent Privacy",def:"Original wireless security standard — completely BROKEN, never use",trick:"WEP = Wholly Exposed Protocol — it's dead, move on"},
+{cat:7,catName:"Access & Wireless",acr:"WIDS",full:"Wireless Intrusion Detection System",def:"IDS monitoring wireless networks for rogue APs and attacks",trick:"WIDS = Wireless IDS — watching for Wi-Fi threats"},
+{cat:7,catName:"Access & Wireless",acr:"WIPS",full:"Wireless Intrusion Prevention System",def:"IPS blocking wireless attacks and unauthorized access",trick:"WIPS = Wireless IPS — blocks Wi-Fi threats actively"},
+{cat:7,catName:"Access & Wireless",acr:"WO",full:"Work Order",def:"Authorization document for specific maintenance or work tasks",trick:"WO = Work Order — the permission slip to do a job"},
+{cat:7,catName:"Access & Wireless",acr:"WPA",full:"Wi-Fi Protected Access",def:"Wireless security protocol — WPA3 is the current standard",trick:"WPA = Wireless Protection Always — protects your Wi-Fi"},
+{cat:7,catName:"Access & Wireless",acr:"WPS",full:"Wi-Fi Protected Setup",def:"Easy wireless setup feature — has serious PIN brute-force vulnerabilities",trick:"WPS = Wireless Problem Setup — convenient but hackable, disable it"},
+{cat:8,catName:"Compliance",acr:"AUP",full:"Acceptable Use Policy",def:"Document defining rules for how company systems may be used by employees",trick:"AUP = Allowed Use Policy — the 'don't do this at work' document"},
+{cat:8,catName:"Compliance",acr:"BASH",full:"Bourne Again Shell",def:"Common Unix/Linux command-line shell — used in security scripting",trick:"BASH = Bourne Again Shell — the Linux terminal you use for scripting"},
+{cat:8,catName:"Compliance",acr:"CIO",full:"Chief Information Officer",def:"Executive responsible for IT strategy and systems across the organization",trick:"CIO = Chief IT Officer — the boss of all IT"},
+{cat:8,catName:"Compliance",acr:"CMS",full:"Content Management System",def:"Platform for creating and managing digital content (WordPress, Drupal)",trick:"CMS = Content Management System — powers most websites"},
+{cat:8,catName:"Compliance",acr:"CSO",full:"Chief Security Officer",def:"Executive responsible for physical and information security",trick:"CSO = Chief Security Officer — security's top executive"},
+{cat:8,catName:"Compliance",acr:"CTO",full:"Chief Technology Officer",def:"Executive responsible for technology strategy and innovation",trick:"CTO = Chief Tech Officer — the boss of technology strategy"},
+{cat:8,catName:"Compliance",acr:"DBA",full:"Database Administrator",def:"Person responsible for maintaining and securing databases",trick:"DBA = DataBase Admin — the person who owns the database"},
+{cat:8,catName:"Compliance",acr:"DPO",full:"Data Privacy Officer",def:"Person responsible for ensuring compliance with data privacy laws like GDPR",trick:"DPO = Data Privacy Owner — the person who answers for GDPR"},
+{cat:8,catName:"Compliance",acr:"GDPR",full:"General Data Protection Regulation",def:"EU law governing how personal data is collected, stored, and processed",trick:"GDPR = Give Data Protection Rights — Europe's privacy superlaw"},
+{cat:8,catName:"Compliance",acr:"GPO",full:"Group Policy Object",def:"Windows setting applying rules to users and computers in Active Directory",trick:"GPO = Group Policy Object — rules pushed to everyone in a domain at once"},
+{cat:8,catName:"Compliance",acr:"ISO",full:"International Standards Organization",def:"International body creating security and quality standards (ISO 27001)",trick:"ISO = International Standards Office — global rules for security"},
+{cat:8,catName:"Compliance",acr:"NIST",full:"National Institute of Standards and Technology",def:"US government body creating cybersecurity frameworks and standards",trick:"NIST = National IT Standards — the US rulebook writers"},
+{cat:8,catName:"Compliance",acr:"PCI DSS",full:"Payment Card Industry Data Security Standard",def:"Security standards for organizations handling credit or debit card data",trick:"PCI DSS = Protect Cards Intensely — credit card rules you must follow"},
+{cat:8,catName:"Compliance",acr:"SDLC",full:"Software Development Lifecycle",def:"The full process of planning, building, testing, and deploying software securely",trick:"SDLC = Secure Development Life Cycle — security baked into every step"},
+{cat:8,catName:"Compliance",acr:"SDLM",full:"Software Development Lifecycle Methodology",def:"The specific approach used in the SDLC (Agile, Waterfall, Spiral, etc.)",trick:"SDLM = SDLC Methodology — the HOW of software development"},
+{cat:9,catName:"Vuln & IR",acr:"ASLR",full:"Address Space Layout Randomization",def:"Randomizes where programs load in memory to prevent exploit attacks",trick:"ASLR = Addresses Scrambled, Limits Risk — shuffles memory like a deck of cards"},
+{cat:9,catName:"Vuln & IR",acr:"CAPTCHA",full:"Completely Automated Public Turing Test to Tell Computers and Humans Apart",def:"Challenge to distinguish humans from bots — the image puzzle or squiggly text",trick:"CAPTCHA = Can A Program Tell Computers and Humans Apart? — the bot filter"},
+{cat:9,catName:"Vuln & IR",acr:"CERT",full:"Computer Emergency Response Team",def:"Team responsible for handling cybersecurity incidents and emergencies",trick:"CERT = Cyber Emergency Response Team — security's fire department"},
+{cat:9,catName:"Vuln & IR",acr:"CIRT",full:"Computer Incident Response Team",def:"Team that responds to cybersecurity incidents — same role as CERT",trick:"CIRT = Computer Incident Response Team — same as CERT, different name"},
+{cat:9,catName:"Vuln & IR",acr:"CVE",full:"Common Vulnerabilities and Exposures",def:"Standardized list where every known vulnerability gets a unique ID",trick:"CVE = Catalogued Vulnerability Entry — every bug gets an ID like CVE-2024-1234"},
+{cat:9,catName:"Vuln & IR",acr:"CVSS",full:"Common Vulnerability Scoring System",def:"Rates vulnerability severity from 0-10 — 10 is most critical",trick:"CVSS = Critical Vulnerability Severity Scale — the Richter scale for bugs"},
+{cat:9,catName:"Vuln & IR",acr:"DEP",full:"Data Execution Prevention",def:"Prevents code from running in memory areas marked as data-only",trick:"DEP = Don't Execute there, Please — data areas can't run code"},
+{cat:9,catName:"Vuln & IR",acr:"FRR",full:"False Rejection Rate",def:"Biometric error rate — legitimate user is incorrectly rejected",trick:"FRR = False Rejection Rate — the system wrongly says NO to a real user"},
+{cat:9,catName:"Vuln & IR",acr:"IR",full:"Incident Response",def:"The process of detecting, containing, and recovering from security incidents",trick:"IR = Immediate Reaction — the emergency response to security events"},
+{cat:9,catName:"Vuln & IR",acr:"IRP",full:"Incident Response Plan",def:"Written playbook defining exactly how to handle security incidents",trick:"IRP = Incident Response Playbook — the manual for when things go wrong"},
+{cat:9,catName:"Vuln & IR",acr:"ISSO",full:"Information Systems Security Officer",def:"Person responsible for the security of a specific information system",trick:"ISSO = the security officer assigned to a specific system"},
+{cat:9,catName:"Vuln & IR",acr:"MSP",full:"Managed Service Provider",def:"Third-party company managing IT services on your behalf",trick:"MSP = My Service Provider — outsourced IT management"},
+{cat:9,catName:"Vuln & IR",acr:"MSSP",full:"Managed Security Service Provider",def:"Third-party company providing outsourced security monitoring and management",trick:"MSSP = My Security Specialists outsourced — hired security team"},
+{cat:9,catName:"Vuln & IR",acr:"RACE",full:"Research and Development in Advanced Communications Technologies in Europe",def:"EU research program — RIPEMD hash algorithm was developed under this program",trick:"RACE = the EU program that gave us the RIPEMD hash algorithm"},
+{cat:9,catName:"Vuln & IR",acr:"RAD",full:"Rapid Application Development",def:"Fast iterative software development methodology",trick:"RAD = Rapid App Development — build fast, iterate quickly"},
+{cat:9,catName:"Vuln & IR",acr:"SOC",full:"Security Operations Center",def:"Team of analysts monitoring security 24/7 and responding to threats",trick:"SOC = Security On Call — security's 911 dispatch center"},
+{cat:10,catName:"Email & Web & General",acr:"AI",full:"Artificial Intelligence",def:"Machine-based intelligence — increasingly used in security tools for threat detection",trick:"AI = Artificial Intelligence — machines that think, now used in security"},
+{cat:10,catName:"Email & Web & General",acr:"CRC",full:"Cyclical Redundancy Check",def:"Error-detecting code to verify data integrity during transmission",trick:"CRC = Cyclical Redundancy Check — detects transmission errors"},
+{cat:10,catName:"Email & Web & General",acr:"CSP",full:"Cloud Service Provider",def:"Company providing cloud computing services (AWS, Azure, Google Cloud)",trick:"CSP = Cloud Service Provider — who hosts your cloud"},
+{cat:10,catName:"Email & Web & General",acr:"DMARC",full:"Domain-Based Message Authentication Reporting and Conformance",def:"Email policy telling receivers what to do with unauthenticated emails",trick:"DMARC = Did Mail Actually Really Come? — the email lie detector"},
+
+{cat:10,catName:"Email & Web & General",acr:"DLL",full:"Dynamic Link Library",def:"Windows shared code files — DLL injection is a common attack technique",trick:"DLL = Dynamic Link Library — shared code files hackers love to hijack"},
+{cat:10,catName:"Email & Web & General",acr:"HTML",full:"Hypertext Markup Language",def:"The standard language for creating web pages",trick:"HTML = HyperText Markup Language — the language of web pages"},
+{cat:10,catName:"Email & Web & General",acr:"ML",full:"Machine Learning",def:"AI systems that learn from data — used in behavior-based security detection",trick:"ML = Machine Learning — teaches computers to find patterns in data"},
+{cat:10,catName:"Email & Web & General",acr:"MMS",full:"Multimedia Message Service",def:"Text messaging supporting images, video, and audio — can carry malware",trick:"MMS = Multimedia Messaging Service — picture texts, can carry malware"},
+{cat:10,catName:"Email & Web & General",acr:"OID",full:"Object Identifier",def:"Globally unique number identifying objects in a hierarchical namespace",trick:"OID = Object Identifier — a unique number tag for any IT object"},
+{cat:10,catName:"Email & Web & General",acr:"OS",full:"Operating System",def:"Core software managing computer hardware and software resources",trick:"OS = Operating System — Windows, Linux, macOS are all OSes"},
+{cat:10,catName:"Email & Web & General",acr:"SHTTP",full:"Secure Hypertext Transfer Protocol",def:"Old alternative to HTTPS for secure web communication — now obsolete",trick:"SHTTP = Secure HTTP (old version) — replaced by HTTPS with TLS"},
+{cat:10,catName:"Email & Web & General",acr:"SMS",full:"Short Message Service",def:"Text messaging — a major attack vector for smishing attacks",trick:"SMS = Short Message Service — text messages, used in smishing attacks"},
+{cat:10,catName:"Email & Web & General",acr:"SQL",full:"Structured Query Language",def:"Language used to interact with relational databases — basis of SQLi attacks",trick:"SQL = Speak to Query a Library of data — the database language"},
+{cat:10,catName:"Email & Web & General",acr:"SOAP",full:"Simple Object Access Protocol",def:"XML-based protocol for exchanging structured data between web services",trick:"SOAP = old-school XML messaging system for web services"},
+{cat:10,catName:"Email & Web & General",acr:"SPF",full:"Sender Policy Framework",def:"DNS record listing which servers are authorized to send email for a domain",trick:"SPF = Sender's Permitted Framework — the approved sender list"},
+{cat:10,catName:"Email & Web & General",acr:"XML",full:"Extensible Markup Language",def:"Format for storing and transporting structured data between systems",trick:"XML = eXtra Markup Language — like HTML but for data"},
+{cat:11,catName:"Hardware",acr:"BIOS",full:"Basic Input/Output System",def:"Firmware that initializes hardware when a computer starts up",trick:"BIOS = Boot Instructions On Startup — the first thing that runs"},
+{cat:11,catName:"Hardware",acr:"CCTV",full:"Closed-Circuit Television",def:"Security camera system where footage stays on internal network",trick:"CCTV = Constantly Capturing Trespassers Visually — always watching"},
+{cat:11,catName:"Hardware",acr:"CSU",full:"Channel Service Unit",def:"Device connecting a leased line to customer equipment at the WAN demarcation",trick:"CSU = Channel Service Unit — the box connecting you to the telco"},
+{cat:11,catName:"Hardware",acr:"ERP",full:"Enterprise Resource Planning",def:"Integrated software managing all business processes — a critical attack target",trick:"ERP = Enterprise Resource Planning — SAP, Oracle — the backbone system"},
+{cat:11,catName:"Hardware",acr:"ESN",full:"Electronic Serial Number",def:"Unique identifier burned into mobile devices for network authentication",trick:"ESN = Electronic Serial Number — the phone's permanent ID number"},
+{cat:11,catName:"Hardware",acr:"GPS",full:"Global Positioning System",def:"Satellite-based location tracking system — used in geofencing security controls",trick:"GPS = Global Positioning Satellites — 24 satellites track your location"},
+{cat:11,catName:"Hardware",acr:"GPU",full:"Graphics Processing Unit",def:"Specialized processor for graphics — also used for fast password cracking",trick:"GPU = Graphics chip — hackers use it for SUPER FAST password cracking"},
+{cat:11,catName:"Hardware",acr:"HDD",full:"Hard Disk Drive",def:"Traditional spinning magnetic hard drive — slower but cheaper storage",trick:"HDD = Hard Disk Drive — the old spinning hard drive"},
+{cat:11,catName:"Hardware",acr:"HVAC",full:"Heating, Ventilation, Air Conditioning",def:"Environmental controls critical for data center operations",trick:"HVAC = Hardware Ventilation And Cooling — servers need it cold and dry"},
+{cat:11,catName:"Hardware",acr:"IDF",full:"Intermediate Distribution Frame",def:"Wiring closet connecting end devices to the main distribution frame",trick:"IDF = Intermediate Distribution Frame — the floor-level wiring closet"},
+{cat:11,catName:"Hardware",acr:"IEEE",full:"Institute of Electrical and Electronics Engineers",def:"Organization that creates networking and wireless standards (802.11 = Wi-Fi)",trick:"IEEE = the standards body — IEEE 802.11 = Wi-Fi, 802.3 = Ethernet"},
+{cat:11,catName:"Hardware",acr:"IoT",full:"Internet of Things",def:"Network of physical devices with sensors and connectivity (smart devices)",trick:"IoT = Internet of Things — army of smart devices with poor security"},
+{cat:11,catName:"Hardware",acr:"MBR",full:"Master Boot Record",def:"First sector of a hard drive containing boot information and partition table",trick:"MBR = Master Boot Record — first thing the disk reads on startup"},
+{cat:11,catName:"Hardware",acr:"MDF",full:"Main Distribution Frame",def:"Central wiring hub for all network connections in a building",trick:"MDF = Main Distribution Frame — the main wiring room for the building"},
+{cat:11,catName:"Hardware",acr:"MFD",full:"Multifunction Device",def:"Printer/scanner/copier/fax combo — stores data and needs securing",trick:"MFD = Multi-Function Device — the office combo machine, a security risk"},
+{cat:11,catName:"Hardware",acr:"MFP",full:"Multifunction Printer",def:"Printer with scanning, copying, and faxing capabilities",trick:"MFP = Multi-Function Printer — same as MFD, just called a printer"},
+{cat:11,catName:"Hardware",acr:"MSCHAP",full:"Microsoft Challenge Handshake Authentication Protocol",def:"Microsoft's version of CHAP for Windows network authentication",trick:"MSCHAP = Microsoft CHAP — Windows-specific challenge-response auth"},
+{cat:11,catName:"Hardware",acr:"NTFS",full:"New Technology File System",def:"Windows file system supporting permissions, encryption (EFS), and journaling",trick:"NTFS = New Technology File System — Windows file system with security features"},
+{cat:11,catName:"Hardware",acr:"NTLM",full:"New Technology LAN Manager",def:"Older Windows authentication protocol — weaker than Kerberos",trick:"NTLM = Old Windows auth — weaker than Kerberos, still seen in legacy systems"},
+{cat:11,catName:"Hardware",acr:"PDU",full:"Power Distribution Unit",def:"Device distributing electrical power to equipment in a data center rack",trick:"PDU = Power Distribution Unit — the power strip for the server rack"},
+{cat:11,catName:"Hardware",acr:"PED",full:"Personal Electronic Device",def:"Any personal electronic device brought into a secure environment",trick:"PED = Personal Electronic Device — your phone, tablet, laptop"},
+{cat:11,catName:"Hardware",acr:"PHI",full:"Personal Health Information",def:"Protected health data regulated by HIPAA — medical records, diagnoses, etc.",trick:"PHI = Private Health Info — your doctor's records, protected by HIPAA"},
+{cat:11,catName:"Hardware",acr:"PII",full:"Personally Identifiable Information",def:"Any data that can identify a specific individual — name, SSN, DOB, etc.",trick:"PII = Personal Info Identified — name, SSN, DOB, email, etc."},
+{cat:11,catName:"Hardware",acr:"PTZ",full:"Pan-Tilt-Zoom",def:"Controllable security camera that can move and zoom remotely",trick:"PTZ = Pan Tilt Zoom — the camera you can control remotely"},
+{cat:11,catName:"Hardware",acr:"RAID",full:"Redundant Array of Independent Disks",def:"Multiple drives working together for redundancy or performance",trick:"RAID = Redundancy And Increased Durability — safety in numbers for storage"},
+{cat:11,catName:"Hardware",acr:"SE Linux",full:"Security-Enhanced Linux",def:"Linux kernel security module implementing mandatory access control policies",trick:"SE Linux = Security-Enhanced Linux — Linux with MAC enforcement built in"},
+{cat:11,catName:"Hardware",acr:"SEH",full:"Structured Exception Handler",def:"Windows mechanism for handling software exceptions — exploited in buffer overflows",trick:"SEH = Structured Exception Handler — Windows error handler attackers target"},
+{cat:11,catName:"Hardware",acr:"SIM",full:"Subscriber Identity Module",def:"Smart card in phones storing carrier authentication credentials",trick:"SIM = Subscriber Identity Module — the chip that makes your phone yours"},
+{cat:11,catName:"Hardware",acr:"SSD",full:"Solid State Drive",def:"Flash-based storage — faster than HDD, but harder to securely wipe",trick:"SSD = Solid State Drive — faster flash storage, trickier to erase securely"},
+{cat:11,catName:"Hardware",acr:"TOC",full:"Time-of-Check",def:"The moment when a condition is verified — part of TOCTOU race condition",trick:"TOC = Time-Of-Check — when we check the condition (before it changes)"},
+{cat:11,catName:"Hardware",acr:"TOU",full:"Time-of-Use",def:"The moment when a resource is actually used — part of TOCTOU race condition",trick:"TOU = Time-Of-Use — when we actually USE the resource (after the check)"},
+{cat:11,catName:"Hardware",acr:"UAT",full:"User Acceptance Testing",def:"Final testing phase where actual users verify the system works as expected",trick:"UAT = Users Actually Testing — real users test before launch"},
+{cat:11,catName:"Hardware",acr:"UAV",full:"Unmanned Aerial Vehicle",def:"Drone — a physical security threat for surveillance or wireless interception",trick:"UAV = Unmanned Aerial Vehicle — drones as physical security threats"},
+{cat:11,catName:"Hardware",acr:"UEFI",full:"Unified Extensible Firmware Interface",def:"Modern replacement for BIOS with secure boot and better features",trick:"UEFI = Updated Extra Features Interface — BIOS 2.0 with security"},
+{cat:11,catName:"Hardware",acr:"UEM",full:"Unified Endpoint Management",def:"Platform managing all endpoint types — phones, laptops, desktops, IoT",trick:"UEM = Unified Endpoint Management — manages ALL device types from one place"},
+{cat:11,catName:"Hardware",acr:"UPS",full:"Uninterruptible Power Supply",def:"Battery backup keeping systems running during power outages",trick:"UPS = Unlimited Power... Sort of — buys you time during outages"},
+{cat:11,catName:"Hardware",acr:"USB",full:"Universal Serial Bus",def:"Common standard for connecting peripheral devices — major attack vector",trick:"USB = Universal Sneaky Bus — attackers drop USB drives in parking lots"},
+{cat:11,catName:"Hardware",acr:"USB OTG",full:"USB On the Go",def:"Allows mobile devices to act as USB hosts and connect peripherals",trick:"USB OTG = USB On The Go — phone acts as the USB host"},
+{cat:11,catName:"Hardware",acr:"VBA",full:"Visual Basic for Applications",def:"Microsoft scripting language embedded in Office — used in macro malware",trick:"VBA = Visual Basic for Applications — the language of Office macro malware"},
+{cat:11,catName:"Hardware",acr:"VTC",full:"Video Teleconferencing",def:"Video-based remote meeting system — can be an eavesdropping attack surface",trick:"VTC = Video TeleConferencing — video meetings, potential eavesdropping risk"},
+{cat:11,catName:"Hardware",acr:"XOR",full:"Exclusive Or",def:"Logical operation — output true only when inputs differ — used in encryption",trick:"XOR = eXclusive OR — the building block of many encryption algorithms"},
+{cat:11,catName:"Hardware",acr:"XSRF",full:"Cross-Site Request Forgery",def:"Same as CSRF — tricks a user into making unauthorized requests",trick:"XSRF = Same as CSRF — eXternal Site Request Forgery"}
+];
+
+const CAT_COLORS=['#00d4ff','#ff6b35','#a78bfa','#10b981','#f59e0b','#ef4444','#f472b6','#2dd4bf','#818cf8','#fbbf24','#34d399','#c4b5fd'];
+const ACRONYM_CATEGORY_OPTIONS=[
+  {value:"0",label:"🔐 Authentication & Identity"},
+  {value:"1",label:"🦠 Threats & Attacks"},
+  {value:"2",label:"🔒 Cryptography"},
+  {value:"3",label:"🌐 Networking"},
+  {value:"4",label:"🛡️ Security Tools & Monitoring"},
+  {value:"5",label:"☁️ Cloud & Virtualization"},
+  {value:"6",label:"📊 Risk & Business Continuity"},
+  {value:"7",label:"🔑 Access Control & Wireless"},
+  {value:"8",label:"📋 Compliance & Governance"},
+  {value:"9",label:"🕵️ Vulnerability & Incident Response"},
+  {value:"10",label:"📧 Email, Web & General"},
+  {value:"11",label:"💾 Hardware & Infrastructure"}
+];
+
+let deck=[],currentIdx=0,correctCount=0,wrongCount=0,missedCards=[],isFlipped=false,sessionMode='flashcard';
+let quizQ=[],quizIdx=0,quizCorrect=0,quizWrong=0,quizMissed=[];
+let mastered=JSON.parse(localStorage.getItem('sec_mastered')||'[]');
+let bestScore=JSON.parse(localStorage.getItem('sec_best')||'null');
+let currentStudySet='acronyms';
+
+function cardId(c){return `${c.set||currentStudySet}:${c.acr}`;}
+function getActiveCards(){
+  if(currentStudySet==='objectives')return OBJECTIVE_CARDS.map(c=>({...c,set:'objectives'}));
+  if(currentStudySet==='all')return [...ALL_CARDS.map(c=>({...c,set:'acronyms'})),...OBJECTIVE_CARDS.map(c=>({...c,set:'objectives'}))];
+  return ALL_CARDS.map(c=>({...c,set:'acronyms'}));
+}
+function renderCategoryOptions(){
+  const picker=document.getElementById('categoryPicker');
+  const opts=currentStudySet==='objectives'
+    ? OBJECTIVE_DOMAIN_OPTIONS.map(o=>({value:o.value,label:o.label}))
+    : currentStudySet==='all'
+      ? [{value:'acr',label:'🔤 Acronyms only'},{value:'obj',label:'🧭 Concepts & Protocols only'},...OBJECTIVE_DOMAIN_OPTIONS.map(o=>({value:'obj:'+o.value,label:o.label}))]
+      : ACRONYM_CATEGORY_OPTIONS;
+  const allLabel=currentStudySet==='objectives'
+    ? `📚 All Objective Domains (${OBJECTIVE_CARDS.length} cards)`
+    : currentStudySet==='all'
+      ? `📚 Everything (${ALL_CARDS.length+OBJECTIVE_CARDS.length} cards)`
+      : `📚 All Categories (${ALL_CARDS.length} cards)`;
+  picker.innerHTML=`<option value="all">${allLabel}</option>`+opts.map(o=>`<option value="${o.value}">${o.label}</option>`).join('');
+}
+function setStudySet(v){
+  currentStudySet=v;
+  localStorage.setItem('sec_study_set',v);
+  renderCategoryOptions();
+  updateHomeStats();
+}
+function getSelectedDeck(){
+  const v=document.getElementById('categoryPicker').value;
+  const cards=getActiveCards();
+  if(v==='all')return cards;
+  if(currentStudySet==='all'){
+    if(v==='acr')return cards.filter(c=>c.set==='acronyms');
+    if(v==='obj')return cards.filter(c=>c.set==='objectives');
+    if(v.startsWith('obj:'))return cards.filter(c=>c.set==='objectives'&&c.cat===parseInt(v.slice(4)));
+  }
+  return cards.filter(c=>c.cat===parseInt(v));
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function goHome(){updateHomeStats();showScreen('homeScreen');}
+function updateHomeStats(){document.getElementById('totalStat').textContent=getSelectedDeck().length;document.getElementById('masteredCount').textContent=mastered.length;document.getElementById('bestScore').textContent=bestScore?bestScore+'%':'—';}
+function startFlashcards(){deck=shuffle(getSelectedDeck());currentIdx=0;correctCount=0;wrongCount=0;missedCards=[];sessionMode='flashcard';showScreen('cardScreen');renderCard();}
+function startMissedOnly(){const m=missedCards.length>0?missedCards:quizMissed;if(m.length===0){alert('No missed cards yet! Try Flashcards or Quiz first.');return;}deck=shuffle([...m]);currentIdx=0;correctCount=0;wrongCount=0;missedCards=[];sessionMode='flashcard';showScreen('cardScreen');renderCard();}
+function renderCard(){
+  const c=deck[currentIdx];if(!c)return;
+  isFlipped=false;document.getElementById('card3d').classList.remove('flipped');document.getElementById('answerBtns').style.display='none';
+  const col=CAT_COLORS[c.cat];
+  const isConcept=c.set==='objectives';
+  const cardTitle=document.getElementById('cardAcronym');
+  cardTitle.textContent=c.acr;
+  cardTitle.classList.toggle('concept-display',isConcept);
+  document.getElementById('cardQuestionText').textContent=isConcept?'What must you know about this objective item?':'What does this stand for?';
+  document.getElementById('frontCatTag').textContent=c.catName;document.getElementById('frontCatTag').style.cssText=`background:${col}20;color:${col};border:1px solid ${col}40`;
+  document.getElementById('frontNumTag').textContent=`${currentIdx+1} / ${deck.length}`;
+  document.getElementById('cardFullName').textContent=c.full;document.getElementById('cardDefinition').textContent=c.def;document.getElementById('trickText').textContent=c.trick;
+  document.getElementById('backCatTag').textContent=c.catName;document.getElementById('backCatTag').style.cssText=`background:${col}20;color:${col};border:1px solid ${col}40`;
+  const pct=((currentIdx+1)/deck.length)*100;
+  document.getElementById('progressFill').style.width=pct+'%';document.getElementById('progressText').textContent=`${currentIdx+1} / ${deck.length}`;
+  document.getElementById('correctChip').textContent=`✓ ${correctCount}`;document.getElementById('wrongChip').textContent=`✗ ${wrongCount}`;
+}
+function flipCard(){isFlipped=!isFlipped;document.getElementById('card3d').classList.toggle('flipped',isFlipped);document.getElementById('answerBtns').style.display=isFlipped?'flex':'none';}
+function markCard(ok){
+  if(ok){correctCount++;document.getElementById('cardScene').classList.add('flash-green');setTimeout(()=>document.getElementById('cardScene').classList.remove('flash-green'),500);const id=cardId(deck[currentIdx]);if(!mastered.includes(id)){mastered.push(id);localStorage.setItem('sec_mastered',JSON.stringify(mastered));}}
+  else{wrongCount++;document.getElementById('cardScene').classList.add('flash-red');setTimeout(()=>document.getElementById('cardScene').classList.remove('flash-red'),500);missedCards.push(deck[currentIdx]);}
+  document.getElementById('correctChip').textContent=`✓ ${correctCount}`;document.getElementById('wrongChip').textContent=`✗ ${wrongCount}`;
+  setTimeout(()=>nextCard(),300);
+}
+function nextCard(){if(currentIdx>=deck.length-1){showResults();return;}currentIdx++;renderCard();}
+function prevCard(){if(currentIdx>0){currentIdx--;renderCard();}}
+function shuffleDeck(){shuffle(deck);currentIdx=0;renderCard();}
+function startQuiz(){const base=shuffle(getSelectedDeck());quizQ=base.slice(0,Math.min(20,base.length));quizIdx=0;quizCorrect=0;quizWrong=0;quizMissed=[];sessionMode='quiz';showScreen('quizScreen');renderQuizQ();}
+function renderQuizQ(){
+  const q=quizQ[quizIdx];if(!q)return;
+  const isConcept=q.set==='objectives';
+  const quizTitle=document.getElementById('quizAcronym');
+  quizTitle.textContent=q.acr;quizTitle.style.color=CAT_COLORS[q.cat];quizTitle.classList.toggle('concept-display',isConcept);
+  document.getElementById('quizQuestionLabel').textContent=isConcept?'WHERE DOES THIS OBJECTIVE ITEM FIT?':'WHAT DOES THIS ACRONYM STAND FOR?';
+  document.getElementById('quizDirection').textContent=isConcept?'Select the correct exam objective context':'Select the correct full name';
+  const pct=((quizIdx+1)/quizQ.length)*100;
+  document.getElementById('quizProgressFill').style.width=pct+'%';document.getElementById('quizProgressText').textContent=`${quizIdx+1} / ${quizQ.length}`;
+  document.getElementById('quizCorrectChip').textContent=`✓ ${quizCorrect}`;document.getElementById('quizWrongChip').textContent=`✗ ${quizWrong}`;
+  document.getElementById('quizFeedback').className='quiz-feedback';document.getElementById('nextQuizBtn').style.display='none';
+  const pool=getActiveCards().filter(c=>cardId(c)!==cardId(q));shuffle(pool);
+  const opts=shuffle([q,...pool.slice(0,3)]);
+  const con=document.getElementById('quizOptions');con.innerHTML='';
+  opts.forEach(o=>{const b=document.createElement('button');b.className='quiz-opt';b.textContent=o.full;b.onclick=()=>answerQ(b,cardId(o)===cardId(q),q);con.appendChild(b);});
+}
+function answerQ(btn,ok,q){
+  document.querySelectorAll('.quiz-opt').forEach(o=>{o.disabled=true;if(o.textContent===q.full)o.classList.add('correct-ans');});
+  const fb=document.getElementById('quizFeedback');
+  if(ok){quizCorrect++;btn.classList.add('correct-ans');fb.className='quiz-feedback correct-fb show';document.getElementById('feedbackTitle').textContent='✅ Correct!';}
+  else{quizWrong++;btn.classList.add('wrong-ans');fb.className='quiz-feedback wrong-fb show';document.getElementById('feedbackTitle').textContent='❌ Not quite!';quizMissed.push(q);}
+  document.getElementById('feedbackBody').textContent=`${q.acr} = ${q.full}`;document.getElementById('feedbackTrick').textContent='🧠 '+q.trick;
+  document.getElementById('quizCorrectChip').textContent=`✓ ${quizCorrect}`;document.getElementById('quizWrongChip').textContent=`✗ ${quizWrong}`;
+  document.getElementById('nextQuizBtn').style.display='block';
+}
+function nextQuizQuestion(){if(quizIdx>=quizQ.length-1){showResults();return;}quizIdx++;renderQuizQ();}
+function showResults(){
+  const tot=sessionMode==='quiz'?quizQ.length:deck.length;const cor=sessionMode==='quiz'?quizCorrect:correctCount;const mis=sessionMode==='quiz'?quizMissed:missedCards;
+  const pct=Math.round((cor/tot)*100);
+  if(!bestScore||pct>bestScore){bestScore=pct;localStorage.setItem('sec_best',JSON.stringify(bestScore));}
+  let icon,title,sub;
+  if(pct===100){icon='🏆';title='PERFECT SCORE';sub='You are UNSTOPPABLE';}else if(pct>=80){icon='🔥';title='MISSION COMPLETE';sub='Strong knowledge';}else if(pct>=60){icon='⚡';title='GETTING THERE';sub='Drill the weak spots';}else{icon='📚';title='KEEP STUDYING';sub='Use the Weak Spots mode';}
+  document.getElementById('resultIcon').textContent=icon;document.getElementById('resultTitle').textContent=title;document.getElementById('resultScore').textContent=pct+'%';
+  document.getElementById('resultScore').style.color=pct>=80?'var(--green)':pct>=60?'var(--gold)':'var(--red)';document.getElementById('resultSub').textContent=sub;
+  document.getElementById('resCorrect').textContent=cor;document.getElementById('resWrong').textContent=tot-cor;document.getElementById('resTotal').textContent=tot;
+  const ml=document.getElementById('missedList'),mi=document.getElementById('missedItems'),db=document.getElementById('drillBtn');
+  if(mis.length>0){ml.style.display='block';db.style.display='block';mi.innerHTML=mis.map(c=>`<div class="missed-item"><span class="missed-acr">${c.acr}</span><span class="missed-full">${c.full}</span></div>`).join('');}
+  else{ml.style.display='none';db.style.display='none';}
+  showScreen('resultsScreen');
+}
+function retrySession(){if(sessionMode==='quiz')startQuiz();else startFlashcards();}
+function drillMissed(){startMissedOnly();}
+currentStudySet=localStorage.getItem('sec_study_set')||'acronyms';
+document.getElementById('studySetPicker').value=currentStudySet;
+renderCategoryOptions();
+updateHomeStats();
+</script>
+</body>
+</html>
