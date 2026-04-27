@@ -11,8 +11,8 @@
 body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;min-height:100vh;overflow-x:hidden;}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,245,212,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,212,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
 .app{position:relative;z-index:1;}
-.screen{display:none;min-height:100vh;}
-.screen.active{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+.screen{display:none;min-height:100dvh;}
+.screen.active{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
 #homeScreen{text-align:center;gap:24px;}
 .logo-area{animation:float 3s ease-in-out infinite;}
 @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
@@ -123,87 +123,156 @@ h1.game-title{font-family:'Black Ops One',cursive;font-size:clamp(1.8rem,6vw,3.5
 .quiz-opt{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px 14px;cursor:pointer;transition:all .2s;text-align:left;font-family:'Exo 2',sans-serif;font-size:.85rem;color:var(--text);line-height:1.4;display:flex;gap:10px;align-items:flex-start;}
 .quiz-opt-letter{font-family:'Orbitron',monospace;font-weight:700;color:var(--accent);font-size:.78rem;min-width:18px;flex-shrink:0;padding-top:2px;}
 
+/* ── Touch: disable hover transforms ─────────────────────── */
 @media (hover:none){
   .mode-card:hover,.ans-btn.got-it:hover,.ans-btn.missed:hover,.nav-btn:hover,.next-quiz-btn:hover,.action-btn.primary:hover,.action-btn.secondary:hover{transform:none;box-shadow:none;}
 }
 
-@media (max-width:720px){
-  body{min-height:100dvh;}
+/* ── Tablet portrait / landscape (481 – 900px) ───────────── */
+@media (min-width:481px) and (max-width:900px){
+  .screen.active{padding:18px;padding-top:max(18px,env(safe-area-inset-top));padding-bottom:max(18px,env(safe-area-inset-bottom));}
+  .top-bar,.card-scene,.answer-btns,.nav-btns,.quiz-question-box,.quiz-options,.quiz-feedback,.mode-grid,.stats-row,.category-select,.action-btns{max-width:min(600px,100%);}
+  .card-scene{height:min(440px,58dvh);min-height:300px;}
+  .mode-grid{grid-template-columns:repeat(3,1fr);}
+  .mode-card{padding:18px 14px;}
+}
+
+/* ── Mobile portrait (≤ 480px) ───────────────────────────── */
+@media (max-width:480px){
   body::before{background-size:28px 28px;}
-  .screen{min-height:100dvh;}
-  .screen.active{justify-content:flex-start;padding:14px;padding-top:max(14px,env(safe-area-inset-top));padding-bottom:max(16px,env(safe-area-inset-bottom));}
-  #homeScreen{gap:14px;}
+  .screen.active{justify-content:flex-start;padding:12px;padding-top:max(12px,env(safe-area-inset-top));padding-bottom:max(14px,env(safe-area-inset-bottom));}
+  #homeScreen{gap:12px;}
   .logo-area{animation:none;}
-  .logo-icon{font-size:2.75rem;margin-bottom:4px;}
-  h1.game-title{font-size:clamp(1.7rem,11vw,2.6rem);letter-spacing:1.5px;}
-  .subtitle-tag{font-size:.68rem;letter-spacing:2px;line-height:1.35;max-width:320px;margin-inline:auto;}
-  .stats-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;max-width:440px;}
+  .logo-icon{font-size:2.6rem;margin-bottom:4px;}
+  h1.game-title{font-size:clamp(1.6rem,10vw,2.4rem);letter-spacing:1.5px;}
+  .subtitle-tag{font-size:.66rem;letter-spacing:2px;line-height:1.35;max-width:300px;margin-inline:auto;}
+  .stats-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;}
   .stat-box{min-width:0;padding:10px 8px;border-radius:10px;}
-  .stat-num{font-size:1.35rem;}
-  .stat-label{font-size:.58rem;letter-spacing:.5px;}
-  .category-select{max-width:440px;font-size:.86rem;padding:11px 12px;}
-  .mode-grid{grid-template-columns:1fr;gap:10px;max-width:440px;}
-  .mode-card{display:grid;grid-template-columns:42px 1fr;grid-template-areas:"icon name" "icon desc";align-items:center;text-align:left;padding:14px;border-radius:12px;}
-  .mode-icon{grid-area:icon;font-size:1.8rem;margin:0;}
-  .mode-name{grid-area:name;font-size:.82rem;}
-  .mode-desc{grid-area:desc;font-size:.72rem;margin-top:2px;}
-  #cardScreen,#quizScreen,#resultsScreen{gap:10px;}
+  .stat-num{font-size:1.28rem;}
+  .stat-label{font-size:.56rem;letter-spacing:.4px;}
+  .category-select{font-size:.84rem;padding:10px 12px;}
+  .mode-grid{grid-template-columns:1fr;gap:9px;}
+  .mode-card{display:grid;grid-template-columns:40px 1fr;grid-template-areas:"icon name" "icon desc";align-items:center;text-align:left;padding:13px;border-radius:12px;}
+  .mode-icon{grid-area:icon;font-size:1.7rem;margin:0;}
+  .mode-name{grid-area:name;font-size:.8rem;}
+  .mode-desc{grid-area:desc;font-size:.7rem;margin-top:2px;}
+  #cardScreen,#quizScreen,#resultsScreen{gap:9px;}
   .top-bar{max-width:100%;display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"home progress count" "score score score";gap:8px;align-items:center;}
-  .top-bar>.nav-btn{grid-area:home;padding:8px 10px;font-size:.72rem;}
+  .top-bar>.nav-btn{grid-area:home;padding:7px 10px;font-size:.7rem;}
   .progress-wrap{grid-area:progress;min-width:0;}
-  .progress-text{grid-area:count;font-size:.68rem;}
+  .progress-text{grid-area:count;font-size:.66rem;}
   .score-display{grid-area:score;justify-content:center;}
-  .score-chip{font-size:.68rem;padding:4px 8px;}
-  .card-scene{height:clamp(390px,62dvh,540px);min-height:390px;max-width:100%;}
-  .card-face{border-radius:16px;padding:22px 16px;}
-  .card-back{padding:46px 16px 38px;}
-  .card-category-tag{top:10px;left:10px;max-width:66%;font-size:.56rem;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .card-num-tag{top:10px;right:10px;font-size:.56rem;}
-  .acronym-display{font-size:clamp(2rem,17vw,4.3rem);letter-spacing:2px;max-width:100%;overflow-wrap:anywhere;}
-  .acronym-display.concept-display{font-size:clamp(1.05rem,7vw,1.8rem);letter-spacing:.5px;}
-  .question-text{font-size:.86rem;text-align:center;}
-  .full-name{font-size:clamp(.76rem,3.4vw,.95rem);line-height:1.35;margin-bottom:8px;}
-  .definition{font-size:.82rem;line-height:1.45;text-align:left;width:100%;}
-  .memory-trick{padding:9px 10px;border-radius:8px;}
-  .trick-label{font-size:.54rem;letter-spacing:1.2px;}
-  .trick-text{font-size:.76rem;text-align:left;}
+  .score-chip{font-size:.66rem;padding:3px 8px;}
+  .card-scene{height:clamp(330px,58dvh,500px);min-height:330px;max-width:100%;}
+  .card-face{border-radius:14px;padding:18px 14px;}
+  .card-back{padding:44px 14px 36px;}
+  .card-category-tag{top:9px;left:9px;max-width:64%;font-size:.54rem;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .card-num-tag{top:9px;right:9px;font-size:.54rem;}
+  .acronym-display{font-size:clamp(1.9rem,16vw,4rem);letter-spacing:2px;max-width:100%;overflow-wrap:anywhere;}
+  .acronym-display.concept-display{font-size:clamp(1rem,6.5vw,1.7rem);letter-spacing:.5px;}
+  .question-text{font-size:.84rem;text-align:center;}
+  .full-name{font-size:clamp(.74rem,3.2vw,.92rem);line-height:1.35;margin-bottom:7px;}
+  .definition{font-size:.8rem;line-height:1.45;text-align:left;width:100%;}
+  .memory-trick{padding:8px 10px;border-radius:8px;}
+  .trick-label{font-size:.52rem;letter-spacing:1.2px;}
+  .trick-text{font-size:.74rem;text-align:left;}
   .answer-btns,.nav-btns{max-width:100%;gap:8px;}
-  .ans-btn{padding:12px 8px;font-size:.72rem;letter-spacing:.5px;border-radius:11px;}
+  .ans-btn{padding:11px 8px;font-size:.7rem;letter-spacing:.4px;border-radius:10px;}
   .nav-btns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));}
-  .nav-btn{padding:9px 8px;font-size:.72rem;white-space:nowrap;}
-  .quiz-question-box{max-width:100%;padding:16px;border-radius:14px;}
-  .quiz-stem{font-size:.85rem;line-height:1.55;}
-  .quiz-options{grid-template-columns:1fr;max-width:100%;gap:8px;}
-  .quiz-opt{padding:12px;font-size:.8rem;border-radius:10px;}
-  .quiz-feedback{max-width:100%;padding:12px 14px;font-size:.82rem;}
-  .next-quiz-btn{width:100%;max-width:440px;padding:12px;font-size:.78rem;}
-  .result-icon{font-size:3.4rem;}
-  .result-breakdown{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;max-width:440px;}
-  .result-stat{min-width:0;padding:10px 8px;}
-  .result-stat-num{font-size:1.35rem;}
-  .missed-list{max-height:32dvh;padding:14px;}
-  .missed-item{display:grid;grid-template-columns:72px 1fr;font-size:.78rem;}
+  .nav-btn{padding:8px 6px;font-size:.7rem;white-space:nowrap;}
+  .quiz-question-box{max-width:100%;padding:14px;border-radius:12px;}
+  .quiz-stem{font-size:.82rem;line-height:1.52;}
+  .quiz-options{max-width:100%;gap:7px;}
+  .quiz-opt{padding:11px 12px;font-size:.78rem;border-radius:10px;}
+  .quiz-feedback{max-width:100%;padding:11px 13px;font-size:.8rem;}
+  .next-quiz-btn{width:100%;padding:11px;font-size:.76rem;}
+  .result-icon{font-size:3.2rem;}
+  .result-breakdown{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;}
+  .result-stat{min-width:0;padding:10px 6px;}
+  .result-stat-num{font-size:1.28rem;}
+  .missed-list{max-height:30dvh;padding:12px;}
+  .missed-item{display:grid;grid-template-columns:68px 1fr;font-size:.76rem;}
   .missed-acr{min-width:0;}
-  .action-btns{width:100%;max-width:440px;display:grid;grid-template-columns:1fr;}
-  .action-btn{width:100%;padding:12px;font-size:.76rem;}
+  .action-btns{width:100%;display:grid;grid-template-columns:1fr;}
+  .action-btn{width:100%;padding:11px;font-size:.74rem;}
 }
 
-@media (max-width:380px){
-  .screen.active{padding-inline:10px;}
-  .stats-row,.result-breakdown{gap:6px;}
-  .stat-box,.result-stat{padding:8px 6px;}
-  .stat-num,.result-stat-num{font-size:1.18rem;}
-  .stat-label,.result-stat-label{font-size:.52rem;}
-  .card-scene{height:clamp(410px,64dvh,560px);min-height:410px;}
-  .definition{font-size:.78rem;}
-  .nav-btn{font-size:.66rem;padding-inline:5px;}
+/* ── Extra small (≤ 360px) ───────────────────────────────── */
+@media (max-width:360px){
+  .screen.active{padding-inline:9px;}
+  .stats-row,.result-breakdown{gap:5px;}
+  .stat-box,.result-stat{padding:7px 5px;}
+  .stat-num,.result-stat-num{font-size:1.1rem;}
+  .stat-label,.result-stat-label{font-size:.5rem;}
+  .card-scene{height:clamp(300px,56dvh,460px);min-height:300px;}
+  .definition{font-size:.76rem;}
+  .nav-btn{font-size:.64rem;padding-inline:4px;}
+  h1.game-title{font-size:clamp(1.4rem,9vw,2rem);}
 }
 
-@media (min-width:1100px){
-  .screen.active{padding:28px;}
-  .top-bar,.card-scene,.answer-btns,.nav-btns,.quiz-question-box,.quiz-options,.quiz-feedback{max-width:760px;}
-  .card-scene{height:min(500px,64vh);}
-  .mode-grid{max-width:760px;}
+/* ── Landscape phones (short viewport) ───────────────────── */
+@media (max-height:500px) and (orientation:landscape){
+  .screen.active{justify-content:flex-start;padding:8px 16px;padding-top:max(8px,env(safe-area-inset-top));padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right));}
+  #homeScreen{gap:8px;flex-direction:row;flex-wrap:wrap;align-content:flex-start;}
+  .logo-area{animation:none;width:100%;margin-bottom:0;}
+  .logo-icon{display:none;}
+  h1.game-title{font-size:1.3rem;letter-spacing:1px;}
+  .subtitle-tag{display:none;}
+  .stats-row{gap:6px;flex-shrink:0;}
+  .stat-box{padding:6px 10px;}
+  .stat-num{font-size:1rem;}
+  .category-select{padding:8px 10px;font-size:.8rem;}
+  .mode-grid{grid-template-columns:repeat(3,1fr);gap:7px;max-width:100%;}
+  .mode-card{padding:9px 10px;}
+  .mode-icon{font-size:1.4rem;margin-bottom:3px;}
+  .mode-name{font-size:.7rem;}
+  .mode-desc{font-size:.6rem;}
+  #cardScreen,#quizScreen,#resultsScreen{gap:7px;}
+  .top-bar{max-width:100%;}
+  .card-scene{height:min(240px,70dvh);min-height:200px;max-width:100%;}
+  .card-face{padding:14px 12px;border-radius:12px;}
+  .card-back{padding:36px 12px 28px;}
+  .acronym-display{font-size:clamp(1.6rem,10vw,3rem);}
+  .acronym-display.concept-display{font-size:clamp(.9rem,4vw,1.4rem);}
+  .definition{font-size:.72rem;line-height:1.35;}
+  .memory-trick{padding:6px 8px;}
+  .trick-text{font-size:.68rem;}
+  .answer-btns{gap:8px;max-width:100%;}
+  .ans-btn{padding:9px 6px;font-size:.68rem;}
+  .nav-btns{max-width:100%;gap:6px;}
+  .nav-btn{padding:7px 8px;font-size:.68rem;}
+  .quiz-question-box{max-width:100%;padding:10px 12px;}
+  .quiz-stem{font-size:.78rem;line-height:1.42;}
+  .quiz-options{max-width:100%;gap:5px;display:grid;grid-template-columns:1fr 1fr;}
+  .quiz-opt{padding:8px 10px;font-size:.74rem;}
+  .quiz-feedback{max-width:100%;padding:8px 12px;font-size:.76rem;}
+  .next-quiz-btn{padding:9px 20px;font-size:.74rem;width:auto;}
+  .result-icon{font-size:2.4rem;}
+  .result-breakdown{gap:6px;}
+  .result-stat{padding:7px 8px;}
+  .result-stat-num{font-size:1.1rem;}
+  .missed-list{max-height:28dvh;}
+  .action-btns{flex-direction:row;flex-wrap:nowrap;gap:8px;}
+  .action-btn{padding:9px 14px;font-size:.72rem;}
+}
+
+/* ── Desktop (901px – 1439px) ────────────────────────────── */
+@media (min-width:901px) and (max-width:1439px){
+  .screen.active{padding:26px;}
+  .top-bar,.card-scene,.answer-btns,.nav-btns,.quiz-question-box,.quiz-options,.quiz-feedback{max-width:720px;}
+  .card-scene{height:min(480px,62dvh);}
+  .mode-grid{max-width:720px;}
+}
+
+/* ── Large desktop (≥ 1440px) ────────────────────────────── */
+@media (min-width:1440px){
+  .screen.active{padding:36px;}
+  .top-bar,.card-scene,.answer-btns,.nav-btns,.quiz-question-box,.quiz-options,.quiz-feedback{max-width:860px;}
+  .card-scene{height:min(540px,62dvh);}
+  .mode-grid{max-width:860px;}
+  .quiz-stem{font-size:1rem;line-height:1.7;}
+  .quiz-opt{font-size:.9rem;padding:15px 16px;}
+  .category-select{max-width:520px;}
 }
 </style>
 </head>
@@ -219,6 +288,8 @@ h1.game-title{font-family:'Black Ops One',cursive;font-size:clamp(1.8rem,6vw,3.5
   <select class="category-select" id="studySetPicker" onchange="setStudySet(this.value)">
     <option value="acronyms">🔤 Official Acronyms</option>
     <option value="objectives">🧭 Concepts &amp; Protocols by Domain</option>
+    <option value="ports">🔌 Ports &amp; Protocols</option>
+    <option value="osi">🌐 OSI Model</option>
     <option value="all">📚 Everything</option>
   </select>
   <select class="category-select" id="categoryPicker" onchange="updateHomeStats()">
@@ -268,6 +339,8 @@ h1.game-title{font-family:'Black Ops One',cursive;font-size:clamp(1.8rem,6vw,3.5
 </div>
 </div>
 <script src="objective_cards.js"></script>
+<script src="port_cards.js"></script>
+<script src="osi_cards.js"></script>
 <script>
 // Inline all 321 cards
 const ALL_CARDS=[
@@ -620,21 +693,30 @@ let currentStudySet='acronyms';
 function cardId(c){return `${c.set||currentStudySet}:${c.acr}`;}
 function getActiveCards(){
   if(currentStudySet==='objectives')return OBJECTIVE_CARDS.map(c=>({...c,set:'objectives'}));
-  if(currentStudySet==='all')return [...ALL_CARDS.map(c=>({...c,set:'acronyms'})),...OBJECTIVE_CARDS.map(c=>({...c,set:'objectives'}))];
+  if(currentStudySet==='ports')return PORT_CARDS.map(c=>({...c,set:'ports'}));
+  if(currentStudySet==='osi')return OSI_CARDS.map(c=>({...c,set:'osi'}));
+  if(currentStudySet==='all')return [...ALL_CARDS.map(c=>({...c,set:'acronyms'})),...OBJECTIVE_CARDS.map(c=>({...c,set:'objectives'})),...PORT_CARDS.map(c=>({...c,set:'ports'})),...OSI_CARDS.map(c=>({...c,set:'osi'}))];
   return ALL_CARDS.map(c=>({...c,set:'acronyms'}));
 }
 function renderCategoryOptions(){
   const picker=document.getElementById('categoryPicker');
-  const opts=currentStudySet==='objectives'
-    ? OBJECTIVE_DOMAIN_OPTIONS.map(o=>({value:o.value,label:o.label}))
-    : currentStudySet==='all'
-      ? [{value:'acr',label:'🔤 Acronyms only'},{value:'obj',label:'🧭 Concepts & Protocols only'},...OBJECTIVE_DOMAIN_OPTIONS.map(o=>({value:'obj:'+o.value,label:o.label}))]
-      : ACRONYM_CATEGORY_OPTIONS;
-  const allLabel=currentStudySet==='objectives'
-    ? `📚 All Objective Domains (${OBJECTIVE_CARDS.length} cards)`
-    : currentStudySet==='all'
-      ? `📚 Everything (${ALL_CARDS.length+OBJECTIVE_CARDS.length} cards)`
-      : `📚 All Categories (${ALL_CARDS.length} cards)`;
+  let opts,allLabel;
+  if(currentStudySet==='objectives'){
+    opts=OBJECTIVE_DOMAIN_OPTIONS.map(o=>({value:o.value,label:o.label}));
+    allLabel=`📚 All Objective Domains (${OBJECTIVE_CARDS.length} cards)`;
+  }else if(currentStudySet==='ports'){
+    opts=PORT_CATEGORY_OPTIONS.map(o=>({value:o.value,label:'🔌 '+o.label}));
+    allLabel=`📚 All Ports (${PORT_CARDS.length} cards)`;
+  }else if(currentStudySet==='osi'){
+    opts=OSI_CATEGORY_OPTIONS.map(o=>({value:o.value,label:'🌐 '+o.label}));
+    allLabel=`📚 All OSI Topics (${OSI_CARDS.length} cards)`;
+  }else if(currentStudySet==='all'){
+    opts=[{value:'acr',label:'🔤 Acronyms only'},{value:'obj',label:'🧭 Concepts & Protocols only'},{value:'prt',label:'🔌 Ports only'},{value:'osi',label:'🌐 OSI Model only'},...OBJECTIVE_DOMAIN_OPTIONS.map(o=>({value:'obj:'+o.value,label:o.label}))];
+    allLabel=`📚 Everything (${ALL_CARDS.length+OBJECTIVE_CARDS.length+PORT_CARDS.length+OSI_CARDS.length} cards)`;
+  }else{
+    opts=ACRONYM_CATEGORY_OPTIONS;
+    allLabel=`📚 All Categories (${ALL_CARDS.length} cards)`;
+  }
   picker.innerHTML=`<option value="all">${allLabel}</option>`+opts.map(o=>`<option value="${o.value}">${o.label}</option>`).join('');
 }
 function setStudySet(v){
@@ -650,6 +732,8 @@ function getSelectedDeck(){
   if(currentStudySet==='all'){
     if(v==='acr')return cards.filter(c=>c.set==='acronyms');
     if(v==='obj')return cards.filter(c=>c.set==='objectives');
+    if(v==='prt')return cards.filter(c=>c.set==='ports');
+    if(v==='osi')return cards.filter(c=>c.set==='osi');
     if(v.startsWith('obj:'))return cards.filter(c=>c.set==='objectives'&&c.cat===parseInt(v.slice(4)));
   }
   return cards.filter(c=>c.cat===parseInt(v));
@@ -665,10 +749,17 @@ function renderCard(){
   isFlipped=false;document.getElementById('card3d').classList.remove('flipped');document.getElementById('answerBtns').style.display='none';
   const col=CAT_COLORS[c.cat];
   const isConcept=c.set==='objectives';
+  const isPort=c.set==='ports';
+  const isOSI=c.set==='osi';
   const cardTitle=document.getElementById('cardAcronym');
-  cardTitle.textContent=c.acr;
-  cardTitle.classList.toggle('concept-display',isConcept);
-  document.getElementById('cardQuestionText').textContent=isConcept?'What must you know about this objective item?':'What does this stand for?';
+  cardTitle.textContent=isPort?`PORT ${c.acr}`:c.acr;
+  cardTitle.classList.toggle('concept-display',isConcept||isPort||isOSI);
+  document.getElementById('cardQuestionText').textContent=
+    isPort?'Which service or protocol uses this port?':
+    isOSI&&c.cat===0?'What does this OSI layer do and which devices/protocols operate here?':
+    isOSI?'Which OSI layer does this target and how does it work?':
+    isConcept?'What must you know about this objective item?':
+    'What does this stand for?';
   document.getElementById('frontCatTag').textContent=c.catName;document.getElementById('frontCatTag').style.cssText=`background:${col}20;color:${col};border:1px solid ${col}40`;
   document.getElementById('frontNumTag').textContent=`${currentIdx+1} / ${deck.length}`;
   document.getElementById('cardFullName').textContent=c.full;document.getElementById('cardDefinition').textContent=c.def;document.getElementById('trickText').textContent=c.trick;
@@ -690,7 +781,11 @@ function shuffleDeck(){shuffle(deck);currentIdx=0;renderCard();}
 function startQuiz(){const base=shuffle(getSelectedDeck());quizQ=base.slice(0,Math.min(20,base.length));quizIdx=0;quizCorrect=0;quizWrong=0;quizMissed=[];sessionMode='quiz';showScreen('quizScreen');renderQuizQ();}
 // ── Exam-style question engine ──────────────────────────────
 function _parseDef(def){if(!def)return{};const r={};def.split(/\n\n/).forEach(p=>{const m=p.match(/^([A-Za-z][A-Za-z\s]+):\n?([\s\S]+)/);if(m)r[m[1].trim().toLowerCase()]=m[2].trim();});return r;}
-function _shortAns(c){return c.set==='objectives'?c.acr:c.full;}
+function _shortAns(c){
+  if(c.set==='objectives')return c.acr;
+  if(c.set==='osi')return c.cat===0?c.full:c.acr; // layers: full name; attacks/controls: acr
+  return c.full; // acronyms and ports
+}
 const _RL=['A security analyst','A network engineer','A systems administrator','An IT manager','A penetration tester','A security architect','A SOC analyst','A CISO'];
 const _RO=['a financial services firm','a healthcare organization','a government contractor','a retail corporation','a cloud service provider','a manufacturing company'];
 function _rnd(a){return a[Math.floor(Math.random()*a.length)];}
@@ -726,10 +821,57 @@ function _objCardStem(card,def,ro,org){
   if(ex.length>10)return `A security exam presents this scenario: "${ex}" Which ${card.catName} concept is BEST illustrated?`;
   return `${ro} at ${org} needs to identify a ${card.catName} concept. Which concept BEST applies based on its characteristics?`;
 }
+function _osiCardStem(card,def,ro,org){
+  const shortA=_shortAns(card);
+  const answer=shortA.toLowerCase().slice(0,7);
+  const fullAns=shortA.toLowerCase();
+  const cat=card.cat;
+  const ex=(def.example||'').trim();
+  const E={
+    0:['Which OSI layer does this BEST describe?','At which OSI layer does this process occur?'],
+    1:['Which OSI layer attack does this scenario describe?','Which attack technique is being used against this OSI layer?'],
+    2:['Which OSI security control is being described?','Which control provides this layer of protection?'],
+  };
+  const L={0:'OSI layer',1:'OSI layer attack',2:'OSI security control'};
+  if(ex.length>39){
+    const cleaned=ex.replace(/^[A-Z][\w\s\/\-.()',]{0,60}:\s*/,'').trim();
+    const sents=cleaned.split(/(?<=[.!?])\s+/).filter(s=>s.length>12);
+    const safe=sents.filter(s=>!s.toLowerCase().startsWith(answer)&&!s.toLowerCase().includes(fullAns));
+    const use=safe.slice(0,2).join(' ').trim();
+    if(use.length>30)return `${use} ${_rnd(E[cat]||E[0])}`;
+  }
+  // Scan definition lines for a non-leaking descriptor
+  const defLines=(def.definition||'').split('\n').filter(l=>l.trim().length>20);
+  for(const line of defLines){
+    const di=line.indexOf(' — ');
+    const desc=(di>=0?line.slice(di+3):line).trim();
+    if(desc.length>20&&!desc.toLowerCase().startsWith(answer)&&!desc.toLowerCase().includes(fullAns)){
+      return `A Security+ exam question presents the following scenario: "${desc}" Which ${L[cat]||'OSI layer'} does this BEST describe?`;
+    }
+  }
+  if(ex.length>10)return `A security exam presents this scenario: "${ex.slice(0,120)}..." Which ${card.catName} concept is BEST illustrated?`;
+  return `${ro} at ${org} needs to identify an ${L[cat]||'OSI'} concept. Which concept BEST applies based on its characteristics?`;
+}
 function _buildStem(card){
   const ro=_rR(),org=_rO(),cat=card.cat;
   // Objective cards: always card-specific via _objCardStem (never category-level)
   if(card.set==='objectives')return _objCardStem(card,_parseDef(card.def||''),ro,org);
+  // Port cards: scenario stem always references the specific port number
+  if(card.set==='ports'){
+    const port=card.acr;
+    const proto=(card.full||'').split(' — ')[0];
+    const isUDP=(card.def||'').includes('UDP port');
+    const xp=isUDP?'UDP':'TCP';
+    const stems=[
+      `A firewall rule review at ${org} reveals ${xp} port ${port} is open on an internet-facing server. ${ro} must identify the associated service. Which protocol runs on port ${port}?`,
+      `During a vulnerability scan, port ${port}/${xp.toLowerCase()} appears open on a target host. ${ro} needs to determine what service is listening. Which service operates on this port?`,
+      `Network traffic logs at ${org} show connections on port ${port}. The security team must classify the traffic. Which protocol is associated with port ${port}?`,
+      `${ro} is writing a firewall policy at ${org} and must allow the correct port for a specific service. The service uses ${xp} port ${port}. Which protocol requires this port?`,
+    ];
+    return _rnd(stems);
+  }
+  // OSI cards: card-specific via _osiCardStem
+  if(card.set==='osi')return _osiCardStem(card,_parseDef(card.def||''),ro,org);
   // Acronym cards: try definition-based stem when def doesn't reveal the acronym
   const sd=(card.def||'').trim(),al=(card.acr||'').toLowerCase();
   if(sd.length>15&&!sd.toLowerCase().includes(al)){
@@ -839,7 +981,8 @@ function makeExamQuestion(card,pool){
   while(wrong.length<3)wrong.push(['Security policy control','Incident response plan','Risk assessment framework'][wrong.length]);
   const allOpts=shuffle([answer,...wrong]);
   const options=allOpts.map((text,i)=>({letter:'ABCD'[i],text,isCorrect:text===answer}));
-  const explanation=(def.definition||'').split('\n')[0]||`${card.acr}: ${card.full||''}`;
+  const rawExp=card.set==='ports'?`Port ${card.acr} — ${card.full}`:card.set==='osi'?`${card.acr}: ${card.full} — ${(def.definition||'').split('\n')[0]}`:(def.definition||'').split('\n')[0]||`${card.acr}: ${card.full||''}`;
+  const explanation=rawExp;
   return{stem,options,card,domain:card.catName||'Security+',explanation,trick:card.trick||''};
 }
 // ────────────────────────────────────────────────────────────
